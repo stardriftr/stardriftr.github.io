@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>dream loggr</title>
+<style>
+:root{--bg:#0d0d0d;--card:#1a1a1a;--accent:#9fff7c;--text:#f2f2f2;--dim:#888}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:system-ui;padding:2rem}
+header{text-align:center;margin-bottom:2rem}
+header h1{font-size:2.5rem;color:var(--accent)}
+header p{color:var(--dim)}
+form{max-width:600px;margin:0 auto 2rem;display:flex;flex-direction:column;gap:.75rem}
+textarea{resize:vertical;min-height:100px;padding:.75rem;border:none;border-radius:4px;background:var(--card);color:var(--text)}
+textarea:focus{outline:2px solid var(--accent)}
+button{padding:.75rem 1rem;border:none;border-radius:4px;background:var(--accent);color:var(--bg);font-weight:bold;cursor:pointer}
+button:hover{filter:brightness(1.1)}
+#timeline{max-width:700px;margin:0 auto;display:flex;flex-direction:column;gap:1rem}
+.dream{background:var(--card);padding:1rem 1.25rem;border-radius:6px;border-left:4px solid var(--accent);animation:fadeIn .4s}
+.dream .meta{font-size:.8rem;color:var(--dim);margin-bottom:.5rem}
+.dream .body{white-space:pre-wrap}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<header>
+  <h1>dream loggr</h1>
+  <p>an anonymous timeline of dreams</p>
+</header>
+
+<form id="form">
+  <textarea id="dreamInput" placeholder="describe what happened in your dream..." required></textarea>
+  <button type="submit">post dream</button>
+</form>
+
+<section id="timeline"></section>
+
+<script>
+const API_URL = 'https://stardriftr-api.calembeaz.workers.dev';
+ // <-- change me
+const form     = document.getElementById('form');
+const input    = document.getElementById('dreamInput');
+const timeline = document.getElementById('timeline');
+
+async function load() {
+  const res  = await fetch(`${API_URL}/dreams`);
+  const list = await res.json();
+  timeline.innerHTML = '';
+  list.forEach(d => {
+    const div = document.createElement('div');
+    div.className = 'dream';
+    div.innerHTML = `
+      <div class="meta">${new Date(Number(d.time)).toLocaleString()}</div>
+      <div class="body">${d.text}</div>
+    `;
+    timeline.appendChild(div);
+  });
+}
+
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+  const text = input.value.trim();
+  if (!text) return;
+  await fetch(`${API_URL}/dreams`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text })
+  });
+  input.value = '';
+  load();
+});
+
+load();
+</script>
+</body>
+</html>
