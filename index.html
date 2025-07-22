@@ -43,7 +43,7 @@ const input    = document.getElementById('dreamInput');
 const timeline = document.getElementById('timeline');
 
 async function load() {
-  const res  = await fetch(`${API_URL}/dreams`);
+  const res  = await fetch(API_URL);
   const list = await res.json();
   timeline.innerHTML = '';
   list.forEach(d => {
@@ -61,7 +61,7 @@ form.addEventListener('submit', async e => {
   e.preventDefault();
   const text = input.value.trim();
   if (!text) return;
-  await fetch(`${API_URL}/dreams`, {
+  await fetch(API_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ text })
