@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dream Timeline</title>
+  <style>
+    :root {
+      --bg: #0d0d0d;
+      --card: #1a1a1a;
+      --text: #f2f2f2;
+      --dim: #aaa;
+      --highlight: #ffe379;
+      --heart: #ffe69b;
+      --button-post: #5492a5;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, sans-serif;
+      padding: 2rem 1rem 4rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .logo {
+      width: 55px;
+      height: 55px;
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+    }
+
+    .subtitle {
+      color: var(--dim);
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+    }
+
+    .timeline {
+      width: 100%;
+      max-width: 500px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .dream {
+      background: var(--card);
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .dream .meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--dim);
+    }
+
+    .dream .body {
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .dream .actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .dream .actions svg {
+      width: 18px;
+      height: 18px;
+      fill: var(--dim);
+      cursor: pointer;
+    }
+
+    .dream .emoji {
+      font-size: 1rem;
+      margin-right: 0.5rem;
+    }
+
+    .dream .username {
+      font-weight: 500;
+      font-size: 0.85rem;
+      color: var(--highlight);
+    }
+
+    .post-fab {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.25rem;
+      background: var(--button-post);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 0.75rem 1.25rem;
+      font-weight: 500;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      z-index: 1000;
+    }
+
+    .post-fab:hover {
+      filter: brightness(1.1);
+    }
+  </style>
+</head>
+<body>
+  <img src="star_driftr_logo.png" alt="STAR DRIFTR Logo" class="logo" onclick="goHome()" />
+  <p class="subtitle">An anonymous timeline of dreams</p>
+
+  <div class="timeline" id="timeline">
+    <!-- Dreams will be injected here -->
+  </div>
+
+  <button class="post-fab" onclick="goToTop()">Post</button>
+
+  <script>
+    const API_URL = 'https://stardriftr-api.calembeaz.workers.dev/dreams';
+    const timeline = document.getElementById('timeline');
+
+    function randomEmoji() {
+      const emojis = ['😴', '🌌', '👁️', '🌀', '🌙', '🛌'];
+      return emojis[Math.floor(Math.random() * emojis.length)];
+    }
+
+    function anonymize(index) {
+      return 'Anon-' + String(1000 + index);
+    }
+
+    async function load() {
+      try {
+        const res = await fetch(API_URL);
+        const list = await res.json();
+        timeline.innerHTML = '';
+        list.sort((a, b) => Number(b.time) - Number(a.time)).forEach((d, i) => {
+          const div = document.createElement('div');
+          div.className = 'dream';
+          div.innerHTML = `
+            <div class="meta">
+              <span><span class="emoji">${randomEmoji()}</span> <span class="username">${anonymize(i)}</span></span>
+              <span>${new Date(Number(d.time)).toLocaleString()}</span>
+            </div>
+            <div class="body">${d.text}</div>
+            <div class="actions">
+              <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z"/></svg>
+              <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.74 0 3.41 1.01 4.13 2.44h.74C13.09 5.01 14.76 4 16.5 4 19 4 21 6 21 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            </div>
+          `;
+          timeline.appendChild(div);
+        });
+      } catch (err) {
+        console.error('Error loading timeline:', err);
+      }
+    }
+
+    function goHome() {
+      window.location.href = "index.html";
+    }
+
+    function goToTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    load();
+  </script>
+</body>
+</html>
