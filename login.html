@@ -110,7 +110,6 @@
   </style>
 </head>
 <body>
-
   <img src="star_driftr_logo.png" alt="STAR DRIFTR Logo" class="logo" />
   <header>
     <p>Log in or sign up to post your dreams anonymously</p>
@@ -147,22 +146,20 @@
 
     logo.onclick = () => window.location.href = 'index.html'
 
-    // Handle email confirmation redirect
-    const { error: confirmError } = await supabase.auth.getSessionFromUrl({ storeSession: true })
-    if (!confirmError) {
-      const { data } = await supabase.auth.getSession()
-      if (data.session) {
-        showMessage('Email confirmed! Redirecting...')
-        showLoggedInState()
-      }
-    }
-
     async function checkUser() {
       const { data } = await supabase.auth.getSession()
       if (data.session) {
         showLoggedInState()
       } else {
-        showLoggedOutState()
+        const hash = new URLSearchParams(window.location.hash.substring(1))
+        if (hash.get("error_description")) {
+          showMessage(hash.get("error_description"), true)
+        } else if (hash.get("access_token")) {
+          showMessage("Email confirmed! Redirecting...")
+          setTimeout(() => window.location.href = "timeline.html", 1500)
+        } else {
+          showLoggedOutState()
+        }
       }
     }
 
@@ -182,6 +179,7 @@
     authForm.addEventListener('submit', async (e) => {
       e.preventDefault()
       clearMessage()
+
       loginBtn.disabled = true
       signupBtn.disabled = true
 
@@ -220,7 +218,7 @@
       if (error) {
         showMessage(error.message, true)
       } else {
-        showMessage('Signup successful! Check your email to confirm.')
+        showMessage('Signup successful! Please check your email to confirm.')
       }
 
       loginBtn.disabled = false
