@@ -110,7 +110,6 @@
   </style>
 </head>
 <body>
-
   <img src="star_driftr_logo.png" alt="STAR DRIFTR Logo" class="logo" />
   <header>
     <p>Log in or sign up to post your dreams anonymously</p>
@@ -197,7 +196,13 @@
       const email = emailInput.value.trim()
       const password = passwordInput.value
 
-      const { data, error } = await supabase.auth.signUp({ email, password })
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: 'https://stardriftr.github.io/login.html'
+        }
+      })
 
       if (error) {
         showMessage(error.message, true)
