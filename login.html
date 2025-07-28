@@ -110,6 +110,7 @@
   </style>
 </head>
 <body>
+
   <img src="star_driftr_logo.png" alt="STAR DRIFTR Logo" class="logo" />
   <header>
     <p>Log in or sign up to post your dreams anonymously</p>
@@ -118,13 +119,11 @@
   <form id="authForm">
     <input type="email" id="email" placeholder="Email address" required />
     <input type="password" id="password" placeholder="Password" required minlength="6" />
-    
     <button type="submit" id="loginBtn">Log In</button>
     <button type="button" id="signupBtn">Sign Up</button>
   </form>
 
   <button id="logoutBtn" class="logout-btn" style="display:none;">Log Out</button>
-
   <div class="message" id="message"></div>
 
   <script type="module">
@@ -151,15 +150,7 @@
       if (data.session) {
         showLoggedInState()
       } else {
-        const hash = new URLSearchParams(window.location.hash.substring(1))
-        if (hash.get("error_description")) {
-          showMessage(hash.get("error_description"), true)
-        } else if (hash.get("access_token")) {
-          showMessage("Email confirmed! Redirecting...")
-          setTimeout(() => window.location.href = "timeline.html", 1500)
-        } else {
-          showLoggedOutState()
-        }
+        showLoggedOutState()
       }
     }
 
@@ -179,7 +170,6 @@
     authForm.addEventListener('submit', async (e) => {
       e.preventDefault()
       clearMessage()
-
       loginBtn.disabled = true
       signupBtn.disabled = true
 
@@ -207,13 +197,7 @@
       const email = emailInput.value.trim()
       const password = passwordInput.value
 
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: 'https://stardriftr.github.io/login.html'
-        }
-      })
+      const { data, error } = await supabase.auth.signUp({ email, password })
 
       if (error) {
         showMessage(error.message, true)
