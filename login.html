@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>STAR DRIFTR — Login</title>
+  <style>
+    :root {
+      --bg: #0d0d0d;
+      --card: #1a1a1a;
+      --text: #f2f2f2;
+      --dim: #999;
+      --accent: #f9f5d7;
+      --button-primary: #5492a5;
+      --button-disabled: #2f4f58;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: system-ui, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 3rem 1rem;
+      min-height: 100vh;
+    }
+
+    .logo {
+      width: 55px;
+      height: 55px;
+      margin-bottom: 1rem;
+      cursor: pointer;
+    }
+
+    header p {
+      font-size: 0.9rem;
+      color: var(--dim);
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    form {
+      background: var(--card);
+      padding: 2rem;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    input[type="email"],
+    input[type="password"] {
+      padding: 1rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      background-color: #222;
+      color: var(--text);
+    }
+
+    input::placeholder {
+      color: var(--dim);
+    }
+
+    button {
+      background-color: var(--button-primary);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 1rem;
+      font-weight: 500;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:disabled {
+      background-color: var(--button-disabled);
+      cursor: not-allowed;
+    }
+
+    .message {
+      text-align: center;
+      font-size: 0.9rem;
+      min-height: 1.2em;
+      color: var(--accent);
+      margin-top: 0.5rem;
+      word-break: break-word;
+    }
+
+    .logout-btn {
+      margin-top: 1rem;
+      background: #cc4b4b;
+    }
+
+    @media (max-width: 480px) {
+      form {
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <img src="star_driftr_logo.png" alt="STAR DRIFTR Logo" class="logo" />
+  <header>
+    <p>Log in or sign up to post your dreams anonymously</p>
+  </header>
+
+  <form id="authForm">
+    <input type="email" id="email" placeholder="Email address" required />
+    <input type="password" id="password" placeholder="Password" required minlength="6" />
+    
+    <button type="submit" id="loginBtn">Log In</button>
+    <button type="button" id="signupBtn">Sign Up</button>
+  </form>
+
+  <button id="logoutBtn" class="logout-btn" style="display:none;">Log Out</button>
+
+  <div class="message" id="message"></div>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+    const SUPABASE_URL = 'https://bxnbkbrkkdftuiolhdkt.supabase.co'
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ4bmJrYnJra2RmdHVpb2xoZGt0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM2ODk1NjgsImV4cCI6MjA2OTI2NTU2OH0.k_D4oInUlhP7V8B5UKjsjP4KeafR-xpEvIk1fpy1QW4'
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+    const authForm = document.getElementById('authForm')
+    const emailInput = document.getElementById('email')
+    const passwordInput = document.getElementById('password')
+    const loginBtn = document.getElementById('loginBtn')
+    const signupBtn = document.getElementById('signupBtn')
+    const logoutBtn = document.getElementById('logoutBtn')
+    const messageDiv = document.getElementById('message')
+    const logo = document.querySelector('.logo')
+
+    logo.onclick = () => window.location.href = 'index.html'
+
+    async function checkUser() {
+      const { data } = await supabase.auth.getSession()
+      if (data.session) {
+        showLoggedInState()
+      } else {
+        showLoggedOutState()
+      }
+    }
+
+    function showLoggedInState() {
+      authForm.style.display = 'none'
+      logoutBtn.style.display = 'block'
+      messageDiv.textContent = 'You are logged in!'
+      // redirect to timeline after a short delay
+      setTimeout(() => window.location.href = 'timeline.html', 1000)
+    }
+
+    function showLoggedOutState() {
+      authForm.style.display = 'flex'
+      logoutBtn.style.display = 'none'
+      messageDiv.textContent = ''
+    }
+
+    authForm.addEventListener('submit', async (e) => {
+      e.preventDefault()
+      clearMessage()
+
+      loginBtn.disabled = true
+      signupBtn.disabled = true
+
+      const email = emailInput.value.trim()
+      const password = passwordInput.value
+
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+
+      if (error) {
+        showMessage(error.message, true)
+      } else {
+        showMessage('Logged in successfully!')
+        showLoggedInState()
+      }
+
+      loginBtn.disabled = false
+      signupBtn.disabled = false
+    })
+
+    signupBtn.addEventListener('click', async () => {
+      clearMessage()
+      loginBtn.disabled = true
+      signupBtn.disabled = true
+
+      const email = emailInput.value.trim()
+      const password = passwordInput.value
+
+      const { data, error } = await supabase.auth.signUp({ email, password })
+
+      if (error) {
+        showMessage(error.message, true)
+      } else {
+        showMessage('Signup successful! Please check your email to confirm.')
+      }
+
+      loginBtn.disabled = false
+      signupBtn.disabled = false
+    })
+
+    logoutBtn.addEventListener('click', async () => {
+      const { error } = await supabase.auth.signOut()
+      if (error) {
+        showMessage(error.message, true)
+      } else {
+        showMessage('Logged out successfully.')
+        showLoggedOutState()
+      }
+    })
+
+    function showMessage(msg, isError = false) {
+      messageDiv.textContent = msg
+      messageDiv.style.color = isError ? '#cc4b4b' : 'var(--accent)'
+    }
+
+    function clearMessage() {
+      messageDiv.textContent = ''
+    }
+
+    checkUser()
+  </script>
+</body>
+</html>
