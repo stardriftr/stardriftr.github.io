@@ -124,14 +124,18 @@
 
     // Track auth state changes
     onAuthStateChanged(auth, user => {
-      if (user) {
-        btn.style.display = 'none';
-        userInfo.textContent = `Logged in as: ${user.displayName} (${user.email})`;
-      } else {
-        btn.style.display = 'block';
-        userInfo.textContent = '';
-      }
-    });
+    if (user) {
+      btn.style.display = 'none';
+      userInfo.textContent = `Logged in as: ${user.displayName} (${user.email})`;
+      // Redirect after a short delay (optional)
+      setTimeout(() => {
+        window.location.href = 'timeline.html'; // Change this to your actual target page
+      }, 1000);
+    } else {
+      btn.style.display = 'block';
+      userInfo.textContent = '';
+    }
+  });
 
     btn.addEventListener('click', async () => {
       btn.disabled = true;
@@ -147,3 +151,4 @@
   </script>
 </body>
 </html>
+
