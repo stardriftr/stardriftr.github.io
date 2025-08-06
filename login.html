@@ -1,21 +1,25 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Login / Signup</title>
+  <meta charset="UTF-8" />
+  <title>Login</title>
 
-  <!-- FirebaseUI default styling -->
-  <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.0.2/firebase-ui-auth.css" />
+  <!-- FirebaseUI CSS -->
+  <link
+    type="text/css"
+    rel="stylesheet"
+    href="https://www.gstatic.com/firebasejs/ui/6.0.2/firebase-ui-auth.css"
+  />
 </head>
 <body>
   <h1>Login / Signup</h1>
-
-  <!-- This container is where FirebaseUI will be rendered -->
   <div id="firebaseui-auth-container"></div>
 
-  <!-- Firebase SDKs -->
+  <!-- Firebase App + Auth SDK -->
   <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth-compat.js"></script>
+
+  <!-- FirebaseUI JS -->
   <script src="https://www.gstatic.com/firebasejs/ui/6.0.2/firebase-ui-auth.js"></script>
 
   <script>
@@ -24,7 +28,7 @@
       apiKey: "AIzaSyBkI9Gnob-bIpZL0m6E8pf7lO8f7dlrYYg",
       authDomain: "stardriftr.firebaseapp.com",
       projectId: "stardriftr",
-      storageBucket: "stardriftr.firebasestorage.app",
+      storageBucket: "stardriftr.appspot.com",
       messagingSenderId: "115649067004",
       appId: "1:115649067004:web:e24fdd5a8447f92f342479",
       measurementId: "G-Q62KZDRBWG"
@@ -35,37 +39,39 @@
 
     // FirebaseUI config
     const uiConfig = {
-      signInSuccessUrl: "timeline.html", // Redirect after sign-in
+      signInSuccessUrl: "timeline.html", // redirect after login
       signInOptions: [
-        firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-        firebase.auth.EmailAuthProvider.PROVIDER_ID
+        firebase.auth.GoogleAuthProvider.PROVIDER_ID
+        // You can add more providers here
       ],
-      credentialHelper: firebaseui.auth.CredentialHelper.NONE, // disables annoying account chooser
-      callbacks: {
-        signInSuccessWithAuthResult: function(authResult, redirectUrl) {
-          console.log("✅ User signed in:", authResult.user.email);
-          return true; // Proceed with redirect
-        },
-        uiShown: function() {
-          console.log("✅ FirebaseUI shown");
-        }
-      }
+      tosUrl: "#", // Terms of service link
+      privacyPolicyUrl: "#", // Privacy policy link
     };
 
     // Initialize the FirebaseUI Widget
     const ui = new firebaseui.auth.AuthUI(firebase.auth());
 
-    // Start the FirebaseUI sign-in widget
-    ui.start("#firebaseui-auth-container", uiConfig);
-
-    // Listen for auth state changes
-    firebase.auth().onAuthStateChanged(function(user) {
-      if (user) {
-        console.log("✅ Auth state: user signed in:", user.email);
-      } else {
-        console.log("⛔ Auth state: no user signed in");
-      }
-    });
+    // Set persistence
+    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+      .then(() => {
+        // Only show FirebaseUI if user is not signed in
+        firebase.auth().onAuthStateChanged(user => {
+          if (user) {
+            console.log("✅ User is signed in:", {
+              email: user.email,
+              uid: user.uid
+            });
+            // Optional: redirect manually (if signInSuccessUrl doesn't work)
+            // window.location.href = "timeline.html";
+          } else {
+            console.log("⛔ No user signed in");
+            ui.start("#firebaseui-auth-container", uiConfig);
+          }
+        });
+      })
+      .catch(error => {
+        console.error("❌ setPersistence error:", error);
+      });
   </script>
 </body>
 </html>
