@@ -2,42 +2,102 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Sign in - STAR DRIFTR</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>STAR DRIFTR — Login</title>
+
   <style>
+    :root {
+      --bg: #0d0d0d;
+      --card: #1a1a1a;
+      --text: #f2f2f2;
+      --dim: #999;
+      --accent: #f9f5d7;
+      --button-primary: #5492a5;
+      --button-disabled: #2f4f58;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
-      font-family: 'Gilroy', sans-serif;
-      background: #000;
-      color: white;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: system-ui, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 3rem 1rem;
+      min-height: 100vh;
+    }
+
+    .logo {
+      width: 55px;
+      height: 55px;
+      margin-bottom: 1rem;
+      cursor: pointer;
+    }
+
+    header p {
+      font-size: 0.9rem;
+      color: var(--dim);
+      margin-bottom: 2rem;
       text-align: center;
-      padding-top: 100px;
     }
 
     #google-signin {
-      display: inline-block;
-      padding: 12px 24px;
-      background-color: #1a1a1a;
-      color: #fff;
-      border: 2px solid white;
-      border-radius: 30px;
-      font-size: 18px;
+      background-color: var(--button-primary);
+      color: white;
+      font-weight: 500;
+      font-size: 1rem;
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 8px;
       cursor: pointer;
-      transition: background-color 0.3s ease, color 0.3s ease;
+      transition: background-color 0.3s ease;
+      max-width: 400px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      user-select: none;
     }
 
     #google-signin:hover {
-      background-color: white;
-      color: black;
+      background-color: #3a7484;
+    }
+
+    #google-signin:disabled {
+      background-color: var(--button-disabled);
+      cursor: not-allowed;
     }
 
     #user-info {
-      margin-top: 40px;
-      font-size: 16px;
-      color: #aaa;
+      margin-top: 2rem;
+      font-size: 1rem;
+      color: var(--accent);
+      max-width: 400px;
+      text-align: center;
+      word-break: break-word;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 2rem 1rem;
+      }
+      #google-signin {
+        padding: 1rem;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>🌌 STAR DRIFTR</h1>
+  <img src="star_driftr_logo.png" alt="STAR DRIFTR Logo" class="logo" />
+  <header>
+    <p>Log in or sign up to post your dreams anonymously</p>
+  </header>
+
   <button id="google-signin">Sign in with Google</button>
 
   <div id="user-info"></div>
@@ -59,23 +119,29 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    onAuthStateChanged(auth, (user) => {
+    const btn = document.getElementById('google-signin');
+    const userInfo = document.getElementById('user-info');
+
+    // Track auth state changes
+    onAuthStateChanged(auth, user => {
       if (user) {
-        document.getElementById('user-info').textContent =
-          `Logged in as: ${user.displayName} (${user.email})`;
+        btn.style.display = 'none';
+        userInfo.textContent = `Logged in as: ${user.displayName} (${user.email})`;
       } else {
-        console.log("⛔ No user is signed in");
+        btn.style.display = 'block';
+        userInfo.textContent = '';
       }
     });
 
-    document.getElementById("google-signin").addEventListener("click", async () => {
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
       const provider = new GoogleAuthProvider();
       try {
-        const result = await signInWithPopup(auth, provider);
-        const user = result.user;
-        console.log("✅ Sign-in successful:", user.email);
+        await signInWithPopup(auth, provider);
+        // userInfo updated by onAuthStateChanged
       } catch (error) {
-        console.error("⛔ Sign-in error:", error.message);
+        userInfo.textContent = `Sign-in error: ${error.message}`;
+        btn.disabled = false;
       }
     });
   </script>
