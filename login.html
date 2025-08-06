@@ -1,29 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Login</title>
 
   <!-- FirebaseUI CSS -->
-  <link
-    type="text/css"
-    rel="stylesheet"
-    href="https://www.gstatic.com/firebasejs/ui/6.0.2/firebase-ui-auth.css"
-  />
+  <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.0.2/firebase-ui-auth.css" />
 </head>
 <body>
-  <h1>Login / Signup</h1>
+  <h1>Login with Google</h1>
   <div id="firebaseui-auth-container"></div>
+  <div id="user-info"></div>
 
-  <!-- Firebase App + Auth SDK -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth-compat.js"></script>
-
-  <!-- FirebaseUI JS -->
   <script src="https://www.gstatic.com/firebasejs/ui/6.0.2/firebase-ui-auth.js"></script>
 
   <script>
-    // Your Firebase config
+    // ✅ Your Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyBkI9Gnob-bIpZL0m6E8pf7lO8f7dlrYYg",
       authDomain: "stardriftr.firebaseapp.com",
@@ -34,44 +29,36 @@
       measurementId: "G-Q62KZDRBWG"
     };
 
-    // Initialize Firebase
+    // ✅ Init Firebase
     firebase.initializeApp(firebaseConfig);
 
-    // FirebaseUI config
+    // ✅ FirebaseUI config
     const uiConfig = {
-      signInSuccessUrl: "timeline.html", // redirect after login
       signInOptions: [
         firebase.auth.GoogleAuthProvider.PROVIDER_ID
-        // You can add more providers here
       ],
-      tosUrl: "#", // Terms of service link
-      privacyPolicyUrl: "#", // Privacy policy link
+      callbacks: {
+        signInSuccessWithAuthResult: function(authResult, redirectUrl) {
+          console.log("✅ Signed in as:", authResult.user.email);
+          document.getElementById("user-info").textContent =
+            `Logged in as: ${authResult.user.displayName} (${authResult.user.email})`;
+          return false; // ⛔️ No redirect
+        }
+      }
     };
 
-    // Initialize the FirebaseUI Widget
+    // ✅ Start FirebaseUI
     const ui = new firebaseui.auth.AuthUI(firebase.auth());
+    ui.start('#firebaseui-auth-container', uiConfig);
 
-    // Set persistence
-    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-      .then(() => {
-        // Only show FirebaseUI if user is not signed in
-        firebase.auth().onAuthStateChanged(user => {
-          if (user) {
-            console.log("✅ User is signed in:", {
-              email: user.email,
-              uid: user.uid
-            });
-            // Optional: redirect manually (if signInSuccessUrl doesn't work)
-            // window.location.href = "timeline.html";
-          } else {
-            console.log("⛔ No user signed in");
-            ui.start("#firebaseui-auth-container", uiConfig);
-          }
-        });
-      })
-      .catch(error => {
-        console.error("❌ setPersistence error:", error);
-      });
+    // ✅ Monitor auth state
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        console.log("✅ Auth state: signed in as", user.email);
+      } else {
+        console.log("⛔ Auth state: no user signed in");
+      }
+    });
   </script>
 </body>
 </html>
