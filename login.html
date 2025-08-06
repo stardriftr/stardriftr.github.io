@@ -1,21 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Login with Firebase</title>
+  <meta charset="UTF-8" />
+  <title>Sign in - STAR DRIFTR</title>
+  <style>
+    body {
+      font-family: 'Gilroy', sans-serif;
+      background: #000;
+      color: white;
+      text-align: center;
+      padding-top: 100px;
+    }
+
+    #google-signin {
+      display: inline-block;
+      padding: 12px 24px;
+      background-color: #1a1a1a;
+      color: #fff;
+      border: 2px solid white;
+      border-radius: 30px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    #google-signin:hover {
+      background-color: white;
+      color: black;
+    }
+
+    #user-info {
+      margin-top: 40px;
+      font-size: 16px;
+      color: #aaa;
+    }
+  </style>
 </head>
 <body>
-  <h2>Sign in with Google</h2>
+  <h1>🌌 STAR DRIFTR</h1>
   <button id="google-signin">Sign in with Google</button>
 
   <div id="user-info"></div>
 
   <script type="module">
-    // Import required Firebase SDKs
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
-    // Your Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyBkI9Gnob-bIpZL0m6E8pf7lO8f7dlrYYg",
       authDomain: "stardriftr.firebaseapp.com",
@@ -26,14 +56,11 @@
       measurementId: "G-Q62KZDRBWG"
     };
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    // Optional: Track auth state
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        console.log("✅ Signed in:", user.email);
         document.getElementById('user-info').textContent =
           `Logged in as: ${user.displayName} (${user.email})`;
       } else {
@@ -41,7 +68,6 @@
       }
     });
 
-    // Sign in with Google on button click
     document.getElementById("google-signin").addEventListener("click", async () => {
       const provider = new GoogleAuthProvider();
       try {
