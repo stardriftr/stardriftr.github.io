@@ -1,62 +1,55 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Login</title>
-
-  <!-- FirebaseUI CSS -->
-  <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.0.2/firebase-ui-auth.css" />
+  <title>Login with Firebase</title>
 </head>
 <body>
-  <h1>Login with Google</h1>
-  <div id="firebaseui-auth-container"></div>
+  <h2>Sign in with Google</h2>
+  <button id="google-signin">Sign in with Google</button>
+
   <div id="user-info"></div>
 
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/ui/6.0.2/firebase-ui-auth.js"></script>
+  <script type="module">
+    // Import required Firebase SDKs
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
-  <script>
-    // ✅ Your Firebase config
+    // Your Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyBkI9Gnob-bIpZL0m6E8pf7lO8f7dlrYYg",
       authDomain: "stardriftr.firebaseapp.com",
       projectId: "stardriftr",
-      storageBucket: "stardriftr.appspot.com",
+      storageBucket: "stardriftr.firebasestorage.app",
       messagingSenderId: "115649067004",
       appId: "1:115649067004:web:e24fdd5a8447f92f342479",
       measurementId: "G-Q62KZDRBWG"
     };
 
-    // ✅ Init Firebase
-    firebase.initializeApp(firebaseConfig);
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-    // ✅ FirebaseUI config
-    const uiConfig = {
-      signInOptions: [
-        firebase.auth.GoogleAuthProvider.PROVIDER_ID
-      ],
-      callbacks: {
-        signInSuccessWithAuthResult: function(authResult, redirectUrl) {
-          console.log("✅ Signed in as:", authResult.user.email);
-          document.getElementById("user-info").textContent =
-            `Logged in as: ${authResult.user.displayName} (${authResult.user.email})`;
-          return false; // ⛔️ No redirect
-        }
-      }
-    };
-
-    // ✅ Start FirebaseUI
-    const ui = new firebaseui.auth.AuthUI(firebase.auth());
-    ui.start('#firebaseui-auth-container', uiConfig);
-
-    // ✅ Monitor auth state
-    firebase.auth().onAuthStateChanged(user => {
+    // Optional: Track auth state
+    onAuthStateChanged(auth, (user) => {
       if (user) {
-        console.log("✅ Auth state: signed in as", user.email);
+        console.log("✅ Signed in:", user.email);
+        document.getElementById('user-info').textContent =
+          `Logged in as: ${user.displayName} (${user.email})`;
       } else {
-        console.log("⛔ Auth state: no user signed in");
+        console.log("⛔ No user is signed in");
+      }
+    });
+
+    // Sign in with Google on button click
+    document.getElementById("google-signin").addEventListener("click", async () => {
+      const provider = new GoogleAuthProvider();
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        console.log("✅ Sign-in successful:", user.email);
+      } catch (error) {
+        console.error("⛔ Sign-in error:", error.message);
       }
     });
   </script>
