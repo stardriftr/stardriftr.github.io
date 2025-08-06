@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>STAR DRIFTR — Login</title>
+
+  <!-- FirebaseUI styles -->
+  <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.0.2/firebase-ui-auth.css" />
+
   <style>
     :root {
       --bg: #0d0d0d;
@@ -46,64 +50,51 @@
       text-align: center;
     }
 
-    form {
+    #firebaseui-auth-container {
       background: var(--card);
       padding: 2rem;
       border-radius: 8px;
       width: 100%;
       max-width: 400px;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
     }
 
-    input[type="email"],
-    input[type="password"] {
-      padding: 1rem;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      background-color: #222;
-      color: var(--text);
-    }
-
-    input::placeholder {
-      color: var(--dim);
-    }
-
-    button {
-      background-color: var(--button-primary);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 1rem;
+    .firebaseui-idp-button,
+    .firebaseui-id-submit {
+      background-color: var(--button-primary) !important;
+      border-radius: 8px !important;
+      padding: 0.75rem 1rem !important;
+      font-size: 1rem !important;
+      color: white !important;
       font-weight: 500;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
     }
 
-    button:disabled {
-      background-color: var(--button-disabled);
-      cursor: not-allowed;
+    .firebaseui-idp-button:disabled,
+    .firebaseui-id-submit:disabled {
+      background-color: var(--button-disabled) !important;
     }
 
-    .message {
-      text-align: center;
-      font-size: 0.9rem;
-      min-height: 1.2em;
-      color: var(--accent);
-      margin-top: 0.5rem;
-      word-break: break-word;
+    .firebaseui-textfield input {
+      background-color: #222 !important;
+      color: var(--text) !important;
+      border-radius: 8px !important;
+      padding: 0.75rem !important;
+      border: none !important;
     }
 
-    .logout-btn {
-      margin-top: 1rem;
-      background: #cc4b4b;
+    .firebaseui-label {
+      color: var(--dim) !important;
+    }
+
+    .firebaseui-card-header {
+      color: var(--text) !important;
+    }
+
+    .firebaseui-error {
+      color: #cc4b4b !important;
     }
 
     @media (max-width: 480px) {
-      form {
+      #firebaseui-auth-container {
         padding: 1.5rem;
       }
     }
@@ -115,125 +106,43 @@
     <p>Log in or sign up to post your dreams anonymously</p>
   </header>
 
-  <form id="authForm">
-    <input type="email" id="email" placeholder="Email address" required />
-    <input type="password" id="password" placeholder="Password" required minlength="6" />
-    <button type="submit" id="loginBtn">Log In</button>
-    <button type="button" id="signupBtn">Sign Up</button>
-  </form>
+  <!-- FirebaseUI container -->
+  <div id="firebaseui-auth-container"></div>
 
-  <button id="logoutBtn" class="logout-btn" style="display:none;">Log Out</button>
-  <div class="message" id="message"></div>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/ui/6.0.2/firebase-ui-auth.js"></script>
 
-  <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBkI9Gnob-bIpZL0m6E8pf7lO8f7dlrYYg",
+      authDomain: "stardriftr.firebaseapp.com",
+      projectId: "stardriftr",
+      storageBucket: "stardriftr.firebasestorage.app",
+      messagingSenderId: "115649067004",
+      appId: "1:115649067004:web:e24fdd5a8447f92f342479",
+      measurementId: "G-Q62KZDRBWG"
+    };
 
-    const SUPABASE_URL = 'https://bxnbkbrkkdftuiolhdkt.supabase.co'
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ4bmJrYnJra2RmdHVpb2xoZGt0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM2ODk1NjgsImV4cCI6MjA2OTI2NTU2OH0.k_D4oInUlhP7V8B5UKjsjP4KeafR-xpEvIk1fpy1QW4'
+    firebase.initializeApp(firebaseConfig);
+    firebase.analytics();
 
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    const uiConfig = {
+      signInSuccessUrl: 'timeline.html', // Redirect after login
+      signInOptions: [
+        firebase.auth.EmailAuthProvider.PROVIDER_ID,
+        firebase.auth.GoogleAuthProvider.PROVIDER_ID
+      ],
+      credentialHelper: firebaseui.auth.CredentialHelper.NONE // hides popup chooser
+    };
 
-    const authForm = document.getElementById('authForm')
-    const emailInput = document.getElementById('email')
-    const passwordInput = document.getElementById('password')
-    const loginBtn = document.getElementById('loginBtn')
-    const signupBtn = document.getElementById('signupBtn')
-    const logoutBtn = document.getElementById('logoutBtn')
-    const messageDiv = document.getElementById('message')
-    const logo = document.querySelector('.logo')
+    const ui = new firebaseui.auth.AuthUI(firebase.auth());
+    ui.start('#firebaseui-auth-container', uiConfig);
 
-    logo.onclick = () => window.location.href = 'index.html'
-
-    async function checkUser() {
-      const { data } = await supabase.auth.getSession()
-      if (data.session) {
-        showLoggedInState()
-      } else {
-        showLoggedOutState()
-      }
-    }
-
-    function showLoggedInState() {
-      authForm.style.display = 'none'
-      logoutBtn.style.display = 'block'
-      messageDiv.textContent = 'You are logged in!'
-      setTimeout(() => window.location.href = 'timeline.html', 1000)
-    }
-
-    function showLoggedOutState() {
-      authForm.style.display = 'flex'
-      logoutBtn.style.display = 'none'
-      messageDiv.textContent = ''
-    }
-
-    authForm.addEventListener('submit', async (e) => {
-      e.preventDefault()
-      clearMessage()
-      loginBtn.disabled = true
-      signupBtn.disabled = true
-
-      const email = emailInput.value.trim()
-      const password = passwordInput.value
-
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-
-      if (error) {
-        showMessage(error.message, true)
-      } else {
-        showMessage('Logged in successfully!')
-        showLoggedInState()
-      }
-
-      loginBtn.disabled = false
-      signupBtn.disabled = false
-    })
-
-    signupBtn.addEventListener('click', async () => {
-      clearMessage()
-      loginBtn.disabled = true
-      signupBtn.disabled = true
-
-      const email = emailInput.value.trim()
-      const password = passwordInput.value
-
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: 'https://stardriftr.github.io/login.html'
-        }
-      })
-
-      if (error) {
-        showMessage(error.message, true)
-      } else {
-        showMessage('Signup successful! Please check your email to confirm.')
-      }
-
-      loginBtn.disabled = false
-      signupBtn.disabled = false
-    })
-
-    logoutBtn.addEventListener('click', async () => {
-      const { error } = await supabase.auth.signOut()
-      if (error) {
-        showMessage(error.message, true)
-      } else {
-        showMessage('Logged out successfully.')
-        showLoggedOutState()
-      }
-    })
-
-    function showMessage(msg, isError = false) {
-      messageDiv.textContent = msg
-      messageDiv.style.color = isError ? '#cc4b4b' : 'var(--accent)'
-    }
-
-    function clearMessage() {
-      messageDiv.textContent = ''
-    }
-
-    checkUser()
+    // Logo click returns to homepage
+    document.querySelector('.logo').onclick = () => window.location.href = 'index.html';
   </script>
 </body>
 </html>
