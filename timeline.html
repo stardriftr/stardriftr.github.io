@@ -138,39 +138,42 @@
 			return emojis[Math.floor(Math.random() * emojis.length)];
 		}
 
-		function anonymize(index) {
-			return 'Anon-' + String(1000 + index);
+		function fallbackAnon(i) {
+			return 'Anon-' + String(1000 + i);
 		}
 
 		async function load() {
-		try {
-			const res = await fetch(API_URL);
-			const list = await res.json();
-			timeline.innerHTML = '';
-			list
-				.sort((a, b) => Number(b.time) - Number(a.time))
-				.forEach((d, i) => {
-					const div = document.createElement('div');
-					div.className = 'dream';
-					div.innerHTML = `
-						<div class="meta">
-							<span><span class="emoji">${randomEmoji()}</span> <span class="username">${anonymize(i)}</span></span>
-							<span>${new Date(Number(d.time)).toLocaleString()}</span>
-						</div>
-						${d.image ? `<img src="${d.image}" alt="Dream image" style="max-width:100%; margin-top:8px; border-radius: 6px;" />` : ''}
-						<div class="body">${d.original}</div>
-						<div class="actions">
-							<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z"/></svg>
-							<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.74 0 3.41 1.01 4.13 2.44h.74C13.09 5.01 14.76 4 16.5 4 19 4 21 6 21 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-						</div>
-					`;
-					timeline.appendChild(div);
-				});
-		} catch (err) {
-			console.error('Error loading timeline:', err);
-		}
-	}
+			try {
+				const res = await fetch(API_URL);
+				const list = await res.json();
+				timeline.innerHTML = '';
+				list
+					.sort((a, b) => Number(b.time) - Number(a.time))
+					.forEach((d, i) => {
+						const div = document.createElement('div');
+						div.className = 'dream';
 
+						// use display_name if available, otherwise fallback
+						const name = d.display_name?.trim() || fallbackAnon(i);
+
+						div.innerHTML = `
+							<div class="meta">
+								<span><span class="emoji">${randomEmoji()}</span> <span class="username">${name}</span></span>
+								<span>${new Date(Number(d.time)).toLocaleString()}</span>
+							</div>
+							${d.image ? `<img src="${d.image}" alt="Dream image" style="max-width:100%; margin-top:8px; border-radius: 6px;" />` : ''}
+							<div class="body">${d.original}</div>
+							<div class="actions">
+								<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z"/></svg>
+								<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.74 0 3.41 1.01 4.13 2.44h.74C13.09 5.01 14.76 4 16.5 4 19 4 21 6 21 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+							</div>
+						`;
+						timeline.appendChild(div);
+					});
+			} catch (err) {
+				console.error('Error loading timeline:', err);
+			}
+		}
 
 		function goHome() {
 			window.location.href = "index.html";
@@ -184,4 +187,3 @@
 	</script>
 </body>
 </html>
-
