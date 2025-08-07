@@ -103,45 +103,48 @@
   <div id="user-info"></div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBkI9Gnob-bIpZL0m6E8pf7lO8f7dlrYYg",
-      authDomain: "stardriftr.firebaseapp.com",
-      projectId: "stardriftr",
-      storageBucket: "stardriftr.firebasestorage.app",
-      messagingSenderId: "115649067004",
-      appId: "1:115649067004:web:e24fdd5a8447f92f342479",
-      measurementId: "G-Q62KZDRBWG"
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyBkI9Gnob-bIpZL0m6E8pf7lO8f7dlrYYg",
+    authDomain: "stardriftr.firebaseapp.com",
+    projectId: "stardriftr",
+    storageBucket: "stardriftr.firebasestorage.app",
+    messagingSenderId: "115649067004",
+    appId: "1:115649067004:web:e24fdd5a8447f92f342479",
+    measurementId: "G-Q62KZDRBWG"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
 
-    const btn = document.getElementById('google-signin');
-    const userInfo = document.getElementById('user-info');
+  const btn = document.getElementById('google-signin');
+  const userInfo = document.getElementById('user-info');
 
-    // Track auth state changes
-    onAuthStateChanged(auth, async user => {
+  onAuthStateChanged(auth, async user => {
     if (user) {
+      console.log("✅ User signed in:", user.uid);
       btn.style.display = 'none';
-  
+
       try {
+        console.log("🔄 Fetching profile from /users...");
         const res = await fetch('https://stardriftr-api.calembeaz.workers.dev/users', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ uid: user.uid }),
         });
-  
+
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-  
+
         const profile = await res.json();
+        console.log("✅ User profile loaded:", profile);
         userInfo.textContent = `Hello, ${profile.username}`;
-  
+
         // ✅ Check for pending dream
         const pendingDream = localStorage.getItem('pendingDream');
         if (pendingDream) {
+          console.log("🌙 Found pending dream:", pendingDream);
           try {
             const dreamRes = await fetch("https://stardriftr-api.calembeaz.workers.dev/dreams", {
               method: "POST",
@@ -153,48 +156,51 @@
                 display_name: profile.display_name,
               }),
             });
-  
+
             if (!dreamRes.ok) throw new Error("Failed to post dream");
-  
+            console.log("✅ Dream posted successfully");
             localStorage.removeItem('pendingDream');
           } catch (dreamErr) {
-            console.error("Error posting pending dream:", dreamErr);
-            // You might want to notify the user somehow here
+            console.error("❌ Error posting pending dream:", dreamErr);
           }
+        } else {
+          console.log("ℹ️ No pending dream found");
         }
-  
-        // ✅ Redirect
+
+        console.log("➡️ Redirecting to timeline in 1s...");
         setTimeout(() => {
           window.location.href = 'timeline.html';
         }, 1000);
-  
+
       } catch (err) {
+        console.error("❌ Error fetching profile:", err);
         userInfo.textContent = `Failed to load profile: ${err.message}`;
         btn.style.display = 'block';
       }
     } else {
+      console.log("ℹ️ No user is signed in");
       btn.style.display = 'block';
       userInfo.textContent = '';
     }
   });
 
-
-
-
-    btn.addEventListener('click', async () => {
-      btn.disabled = true;
-      const provider = new GoogleAuthProvider();
-      try {
-        await signInWithPopup(auth, provider);
-        // userInfo updated by onAuthStateChanged
-      } catch (error) {
-        userInfo.textContent = `Sign-in error: ${error.message}`;
-        btn.disabled = false;
-      }
-    });
-  </script>
+  btn.addEventListener('click', async () => {
+    btn.disabled = true;
+    const provider = new GoogleAuthProvider();
+    console.log("🔘 Sign-in button clicked");
+    try {
+      await signInWithPopup(auth, provider);
+      console.log("✅ Sign-in popup success");
+    } catch (error) {
+      console.error("❌ Sign-in error:", error);
+      userInfo.textContent = `Sign-in error: ${error.message}`;
+      btn.disabled = false;
+    }
+  });
+</script>
 </body>
 </html>
+
 
 
 
