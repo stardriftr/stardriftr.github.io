@@ -124,34 +124,36 @@
 
     // Track auth state changes
     onAuthStateChanged(auth, async user => {
-    if (user) {
-      btn.style.display = 'none';
-      userInfo.textContent = `Logged in as: ${user.displayName} (${user.email})`;
-  
-      // ✅ Sync user to KV
-      try {
-        await fetch('https://stardriftr-api.YOUR_SUBDOMAIN.workers.dev/sync-user', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            uid: user.uid,
-            email: user.email,
-            name: user.displayName
-          })
-        });
-      } catch (err) {
-        console.error("Failed to sync user:", err);
-      }
-  
-      // Redirect after a short delay
+  if (user) {
+    btn.style.display = 'none';
+
+    try {
+      const res = await fetch('https://stardriftr-api.calembeaz.workers.dev/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid: user.uid }),
+      });
+
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
+      const profile = await res.json();
+
+      userInfo.textContent = `Hello, ${profile.username}`;
+
+      // Redirect after short delay
       setTimeout(() => {
         window.location.href = 'timeline.html';
       }, 1000);
-    } else {
+    } catch (err) {
+      userInfo.textContent = `Failed to load profile: ${err.message}`;
       btn.style.display = 'block';
-      userInfo.textContent = '';
     }
-  });
+  } else {
+    btn.style.display = 'block';
+    userInfo.textContent = '';
+  }
+});
+
 
 
     btn.addEventListener('click', async () => {
@@ -168,5 +170,6 @@
   </script>
 </body>
 </html>
+
 
 
