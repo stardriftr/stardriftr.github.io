@@ -135,39 +135,32 @@
     <button id="postBtn" class="post" disabled>Post</button>
   </div>
 
-  <div class="popup" id="popup">Dream posted! Uploading now...</div>
+  <div class="popup" id="popup">Dream saved! Redirecting to login...</div>
 
   <script>
     const textarea = document.getElementById('dreamInput');
     const postBtn = document.getElementById('postBtn');
     const popup = document.getElementById('popup');
-    const API_URL = 'https://stardriftr-api.calembeaz.workers.dev/dreams';
 
     textarea.addEventListener('input', () => {
       postBtn.disabled = textarea.value.trim() === '';
     });
 
-    postBtn.addEventListener('click', async () => {
+    postBtn.addEventListener('click', () => {
       const text = textarea.value.trim();
       if (!text) return;
 
-      try {
-        await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text })
-        });
+      // Save dream text locally
+      localStorage.setItem('pendingDream', text);
 
-        popup.style.display = 'block';
+      // Show popup briefly
+      popup.style.display = 'block';
 
-        setTimeout(() => {
-          popup.style.display = 'none';
-          window.location.href = 'timeline.html';
-        }, 1000);
-      } catch (err) {
-        console.error('Failed to post:', err);
-        alert('Something went wrong posting your dream.');
-      }
+      setTimeout(() => {
+        popup.style.display = 'none';
+        // Redirect to login page to authenticate before posting
+        window.location.href = 'login.html';
+      }, 1000);
     });
 
     function goHome() {
@@ -176,3 +169,4 @@
   </script>
 </body>
 </html>
+
