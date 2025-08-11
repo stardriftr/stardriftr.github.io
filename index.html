@@ -1,224 +1,171 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>Dream Timeline</title>
-	<style>
-		:root {
-			--bg: #0d0d0d;
-			--card: #1a1a1a;
-			--text: #f2f2f2;
-			--dim: #aaa;
-			--highlight: #ffe379;
-			--heart: #ffe69b;
-			--button-post: #5492a5;
-		}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>STAR DRIFTR</title>
+  <style>
+    :root {
+      --bg: #0d0d0d;
+      --card: #1a1a1a;
+      --text: #f2f2f2;
+      --dim: #999;
+      --accent: #f9f5d7;
+      --button-post: #5492a5;
+      --button-post-disabled: #2f4f58;
+    }
 
-		* {
-			box-sizing: border-box;
-			margin: 0;
-			padding: 0;
-		}
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-		body {
-			background: var(--bg);
-			color: var(--text);
-			font-family: system-ui, sans-serif;
-			padding: 2rem 1rem 4rem;
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-		}
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: system-ui, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 3rem 1rem;
+      min-height: 100vh;
+    }
 
-		.logo {
-			width: 55px;
-			height: 55px;
-			margin-bottom: 0.5rem;
-			cursor: pointer;
-		}
+    .logo {
+      width: 55px;
+      height: 55px;
+      margin-bottom: 1rem;
+      cursor: pointer;
+    }
 
-		.subtitle {
-			color: var(--dim);
-			font-size: 0.95rem;
-			margin-bottom: 2rem;
-		}
+    header p {
+      font-size: 0.9rem;
+      color: var(--dim);
+      margin-bottom: 2rem;
+    }
 
-		.timeline {
-			width: 100%;
-			max-width: 500px;
-			display: flex;
-			flex-direction: column;
-			gap: 1.25rem;
-		}
+    textarea {
+      background-color: var(--card);
+      color: var(--text);
+      border: none;
+      border-radius: 8px;
+      padding: 1rem;
+      width: 100%;
+      max-width: 400px;
+      height: 250px;
+      resize: none;
+      margin-bottom: 2rem;
+      font-size: 1rem;
+    }
 
-		.dream {
-			background: var(--card);
-			border-radius: 8px;
-			padding: 1rem 1.2rem;
-			display: flex;
-			flex-direction: column;
-			gap: 0.5rem;
-		}
+    textarea::placeholder {
+      color: var(--dim);
+    }
 
-		.dream .meta {
-			display: flex;
-			justify-content: space-between;
-			font-size: 0.75rem;
-			color: var(--dim);
-		}
+    .buttons {
+      display: flex;
+      gap: 1rem;
+      width: 100%;
+      max-width: 400px;
+    }
 
-		.dream .body {
-			font-size: 0.95rem;
-			line-height: 1.5;
-		}
+    .buttons a, .buttons button {
+      flex: 1;
+      text-align: center;
+      padding: 1rem;
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 1rem;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+    }
 
-		.dream .actions {
-			display: flex;
-			justify-content: flex-end;
-			gap: 1rem;
-			margin-top: 0.5rem;
-		}
+    .explore {
+      background: var(--accent);
+      color: #000;
+    }
 
-		.dream .actions svg {
-			width: 18px;
-			height: 18px;
-			fill: var(--dim);
-			cursor: pointer;
-		}
+    .post {
+      background: var(--button-post);
+      color: #fff;
+    }
 
-		.dream .emoji {
-			font-size: 1rem;
-			margin-right: 0.5rem;
-		}
+    .post:disabled {
+      background: var(--button-post-disabled);
+      cursor: not-allowed;
+    }
 
-		.dream .username {
-			font-weight: 500;
-			font-size: 0.85rem;
-			color: var(--highlight);
-		}
+    .popup {
+      position: fixed;
+      top: 2rem;
+      background: #fff;
+      color: #000;
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px;
+      font-weight: bold;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      z-index: 100;
+      display: none;
+    }
 
-		.post-fab {
-			position: fixed;
-			bottom: 1.5rem;
-			right: 1.25rem;
-			background: var(--button-post);
-			color: white;
-			border: none;
-			border-radius: 12px;
-			padding: 0.75rem 1.25rem;
-			font-weight: 500;
-			font-size: 1rem;
-			cursor: pointer;
-			box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-			z-index: 1000;
-		}
+    @media (max-width: 480px) {
+      textarea {
+        height: 200px;
+      }
 
-		.post-fab:hover {
-			filter: brightness(1.1);
-		}
-
-		/* Added loading overlay styles */
-		#loading-overlay {
-			position: fixed;
-			top: 0;
-			left: 0;
-			width: 100vw;
-			height: 100vh;
-			background: var(--bg);
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			z-index: 2000;
-		}
-
-		.spinner {
-			border: 5px solid #333;
-			border-top: 5px solid var(--highlight);
-			border-radius: 50%;
-			width: 48px;
-			height: 48px;
-			animation: spin 1s linear infinite;
-		}
-
-		@keyframes spin {
-			to { transform: rotate(360deg); }
-		}
-	</style>
+      .buttons a, .buttons button {
+        font-size: 0.95rem;
+        padding: 0.9rem;
+      }
+    }
+  </style>
 </head>
 <body>
-	<img src="https://raw.githubusercontent.com/stardriftr/stardriftr.github.io/main/images/star_driftr_logo.png" alt="STAR DRIFTR Logo" class="logo" onclick="goHome()" />
-	<p class="subtitle">An anonymous timeline of dreams</p>
+  <img src="https://raw.githubusercontent.com/stardriftr/stardriftr.github.io/main/images/star_driftr_logo.png" alt="STAR DRIFTR Logo" class="logo" onclick="goHome()" />
+  <header>
+    <p>An anonymous timeline of dreams</p>
+  </header>
 
-	<!-- Added loading overlay -->
-	<div id="loading-overlay">
-		<div class="spinner"></div>
-	</div>
+  <textarea id="dreamInput" placeholder="Describe what happened in your dream..."></textarea>
 
-	<div class="timeline" id="timeline">
-		<!-- Dreams will be injected here -->
-	</div>
+  <div class="buttons">
+    <a href="timeline.html" class="explore">Explore</a>
+    <button id="postBtn" class="post" disabled>Post</button>
+  </div>
 
-	<button class="post-fab" onclick="goToTop()">Post</button>
+  <div class="popup" id="popup">Dream saved! Redirecting to login...</div>
 
-	<script>
-		const API_URL = 'https://stardriftr-api.calembeaz.workers.dev/dreams';
-		const timeline = document.getElementById('timeline');
+  <script>
+    const textarea = document.getElementById('dreamInput');
+    const postBtn = document.getElementById('postBtn');
+    const popup = document.getElementById('popup');
 
-		function randomEmoji() {
-			const emojis = ['😴', '🌌', '👁️', '🌀', '🌙', '🛌'];
-			return emojis[Math.floor(Math.random() * emojis.length)];
-		}
+    textarea.addEventListener('input', () => {
+      postBtn.disabled = textarea.value.trim() === '';
+    });
 
-		function fallbackAnon(i) {
-			return 'Anon-' + String(1000 + i);
-		}
+    postBtn.addEventListener('click', () => {
+      const text = textarea.value.trim();
+      if (!text) return;
 
-		async function load() {
-			const loadingOverlay = document.getElementById('loading-overlay');
-			try {
-				const res = await fetch(API_URL);
-				const list = await res.json();
-				timeline.innerHTML = '';
-				list
-					.sort((a, b) => Number(b.time) - Number(a.time))
-					.forEach((d, i) => {
-						const div = document.createElement('div');
-						div.className = 'dream';
+      // Save dream text locally
+      localStorage.setItem('pendingDream', text);
 
-						// use display_name if available, otherwise fallback
-						const name = d.display_name?.trim() || fallbackAnon(i);
+      // Show popup briefly
+      popup.style.display = 'block';
 
-						div.innerHTML = `
-							<div class="meta">
-								<span><span class="emoji">${randomEmoji()}</span> <span class="username">${name}</span></span>
-								<span>${new Date(Number(d.time)).toLocaleString()}</span>
-							</div>
-							${d.image ? `<img src="${d.image}" alt="Dream image" style="max-width:100%; margin-top:8px; border-radius: 6px;" />` : ''}
-							<div class="body">${d.original}</div>
-							<div class="actions">
-								<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z"/></svg>
-								<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.74 0 3.41 1.01 4.13 2.44h.74C13.09 5.01 14.76 4 16.5 4 19 4 21 6 21 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-							</div>
-						`;
-						timeline.appendChild(div);
-					});
-			} catch (err) {
-				console.error('Error loading timeline:', err);
-			} finally {
-				loadingOverlay.style.display = 'none'; // Hide spinner when done
-			}
-		}
+      setTimeout(() => {
+        popup.style.display = 'none';
+        // Redirect to login page to authenticate before posting
+        window.location.href = 'login.html';
+      }, 1000);
+    });
 
-		function goHome() {
-			window.location.href = "index.html";
-		}
-
-		function goToTop() {
-			window.location.href = 'index.html';
-		}
-
-		load();
-	</script>
+    function goHome() {
+      window.location.href = "index.html";
+    }
+  </script>
 </body>
 </html>
