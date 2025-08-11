@@ -117,11 +117,43 @@
 		.post-fab:hover {
 			filter: brightness(1.1);
 		}
+
+		/* Added loading overlay styles */
+		#loading-overlay {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100vw;
+			height: 100vh;
+			background: var(--bg);
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			z-index: 2000;
+		}
+
+		.spinner {
+			border: 5px solid #333;
+			border-top: 5px solid var(--highlight);
+			border-radius: 50%;
+			width: 48px;
+			height: 48px;
+			animation: spin 1s linear infinite;
+		}
+
+		@keyframes spin {
+			to { transform: rotate(360deg); }
+		}
 	</style>
 </head>
 <body>
 	<img src="https://raw.githubusercontent.com/stardriftr/stardriftr.github.io/main/images/star_driftr_logo.png" alt="STAR DRIFTR Logo" class="logo" onclick="goHome()" />
 	<p class="subtitle">An anonymous timeline of dreams</p>
+
+	<!-- Added loading overlay -->
+	<div id="loading-overlay">
+		<div class="spinner"></div>
+	</div>
 
 	<div class="timeline" id="timeline">
 		<!-- Dreams will be injected here -->
@@ -143,6 +175,7 @@
 		}
 
 		async function load() {
+			const loadingOverlay = document.getElementById('loading-overlay');
 			try {
 				const res = await fetch(API_URL);
 				const list = await res.json();
@@ -172,6 +205,8 @@
 					});
 			} catch (err) {
 				console.error('Error loading timeline:', err);
+			} finally {
+				loadingOverlay.style.display = 'none'; // Hide spinner when done
 			}
 		}
 
@@ -187,5 +222,3 @@
 	</script>
 </body>
 </html>
-
-
