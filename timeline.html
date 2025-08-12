@@ -216,7 +216,7 @@
       console.error('Error loading timeline:', err);
       showPopup(`Error loading timeline: ${err.message}`);
     } finally {
-      document.getElementById('loading-overlay').style.display = 'none';
+      loadingOverlay.style.display = 'none';
     }
   }
 
@@ -236,43 +236,41 @@
   }
 
   async function postPendingDream() {
-  const pendingDream = localStorage.getItem('pendingDream');
-  const uid = localStorage.getItem('uid');
+    const pendingDream = localStorage.getItem('pendingDream');
+    const uid = localStorage.getItem('uid');
 
-  if (!pendingDream || !uid) return;
+    if (!pendingDream || !uid) return;
 
-  showPopup("Posting your dream...");
+    showPopup("Posting your dream...");
 
-  try {
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: pendingDream, uid: uid }),
-    });
+    try {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: pendingDream, uid: uid }),
+      });
 
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(`HTTP ${res.status}: ${text}`);
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`HTTP ${res.status}: ${text}`);
+      }
+
+      localStorage.removeItem('pendingDream');
+      showPopup("Dream posted!");
+
+      // Reload timeline to include the new dream
+      await load();
+
+    } catch (err) {
+      console.error("Failed to post pending dream:", err);
+      showPopup("Failed to post dream");
     }
-
-    localStorage.removeItem('pendingDream');
-    // Optional: you can remove uid here if you want, or keep for future posts
-    // localStorage.removeItem('uid');
-
-    showPopup("Dream posted!");
-  } catch (err) {
-    console.error("Failed to post pending dream:", err);
-    showPopup("Failed to post dream");
   }
-}
 
-window.addEventListener('load', async () => {
-  await postPendingDream();
-  await load();
-});
-
+  window.addEventListener('load', async () => {
+    await load();          // Load timeline first
+    await postPendingDream();  // Then post dream
+  });
 </script>
 </body>
 </html>
-
-
