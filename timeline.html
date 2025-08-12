@@ -1,224 +1,438 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>Dream Timeline</title>
-	<style>
-		:root {
-			--bg: #0d0d0d;
-			--card: #1a1a1a;
-			--text: #f2f2f2;
-			--dim: #aaa;
-			--highlight: #ffe379;
-			--heart: #ffe69b;
-			--button-post: #5492a5;
-		}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dream Timeline</title>
+  <style>
+    :root {
+      --bg: #0d0d0d;
+      --card: #1a1a1a;
+      --text: #f2f2f2;
+      --dim: #aaa;
+      --highlight: #ffe379;
+      --heart: #ffe69b;
+      --button-post: #5492a5;
+      --button-disabled: #2f4f58;
+    }
 
-		* {
-			box-sizing: border-box;
-			margin: 0;
-			padding: 0;
-		}
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-		body {
-			background: var(--bg);
-			color: var(--text);
-			font-family: system-ui, sans-serif;
-			padding: 2rem 1rem 4rem;
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-		}
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, sans-serif;
+      padding: 2rem 1rem 4rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      position: relative;
+    }
 
-		.logo {
-			width: 55px;
-			height: 55px;
-			margin-bottom: 0.5rem;
-			cursor: pointer;
-		}
+    .logo {
+      width: 55px;
+      height: 55px;
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+    }
 
-		.subtitle {
-			color: var(--dim);
-			font-size: 0.95rem;
-			margin-bottom: 2rem;
-		}
+    .subtitle {
+      color: var(--dim);
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
 
-		.timeline {
-			width: 100%;
-			max-width: 500px;
-			display: flex;
-			flex-direction: column;
-			gap: 1.25rem;
-		}
+    .timeline {
+      width: 100%;
+      max-width: 500px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
 
-		.dream {
-			background: var(--card);
-			border-radius: 8px;
-			padding: 1rem 1.2rem;
-			display: flex;
-			flex-direction: column;
-			gap: 0.5rem;
-		}
+    .dream {
+      background: var(--card);
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      word-break: break-word;
+    }
 
-		.dream .meta {
-			display: flex;
-			justify-content: space-between;
-			font-size: 0.75rem;
-			color: var(--dim);
-		}
+    .dream .meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--dim);
+    }
 
-		.dream .body {
-			font-size: 0.95rem;
-			line-height: 1.5;
-		}
+    .dream .body {
+      font-size: 0.95rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
 
-		.dream .actions {
-			display: flex;
-			justify-content: flex-end;
-			gap: 1rem;
-			margin-top: 0.5rem;
-		}
+    .dream .actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
 
-		.dream .actions svg {
-			width: 18px;
-			height: 18px;
-			fill: var(--dim);
-			cursor: pointer;
-		}
+    .dream .actions svg {
+      width: 18px;
+      height: 18px;
+      fill: var(--dim);
+      cursor: pointer;
+    }
 
-		.dream .emoji {
-			font-size: 1rem;
-			margin-right: 0.5rem;
-		}
+    .dream .emoji {
+      font-size: 1rem;
+      margin-right: 0.5rem;
+    }
 
-		.dream .username {
-			font-weight: 500;
-			font-size: 0.85rem;
-			color: var(--highlight);
-		}
+    .dream .username {
+      font-weight: 500;
+      font-size: 0.85rem;
+      color: var(--highlight);
+    }
 
-		.post-fab {
-			position: fixed;
-			bottom: 1.5rem;
-			right: 1.25rem;
-			background: var(--button-post);
-			color: white;
-			border: none;
-			border-radius: 12px;
-			padding: 0.75rem 1.25rem;
-			font-weight: 500;
-			font-size: 1rem;
-			cursor: pointer;
-			box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-			z-index: 1000;
-		}
+    .post-fab {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.25rem;
+      background: var(--button-post);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 0.75rem 1.25rem;
+      font-weight: 500;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      z-index: 1100;
+      user-select: none;
+      transition: filter 0.2s ease;
+    }
 
-		.post-fab:hover {
-			filter: brightness(1.1);
-		}
+    .post-fab:hover {
+      filter: brightness(1.1);
+    }
 
-		/* Added loading overlay styles */
-		#loading-overlay {
-			position: fixed;
-			top: 0;
-			left: 0;
-			width: 100vw;
-			height: 100vh;
-			background: var(--bg);
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			z-index: 2000;
-		}
+    #loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: var(--bg);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
 
-		.spinner {
-			border: 5px solid #333;
-			border-top: 5px solid var(--highlight);
-			border-radius: 50%;
-			width: 48px;
-			height: 48px;
-			animation: spin 1s linear infinite;
-		}
+    .spinner {
+      border: 5px solid #333;
+      border-top: 5px solid var(--highlight);
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      animation: spin 1s linear infinite;
+    }
 
-		@keyframes spin {
-			to { transform: rotate(360deg); }
-		}
-	</style>
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Post modal styles */
+    #post-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(13,13,13,0.9);
+      z-index: 3000;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+    }
+
+    #post-modal.active {
+      display: flex;
+    }
+
+    #post-form {
+      background: var(--card);
+      border-radius: 10px;
+      max-width: 480px;
+      width: 100%;
+      padding: 1.5rem 1.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    #post-form textarea {
+      width: 100%;
+      min-height: 120px;
+      resize: vertical;
+      background: #222;
+      border: none;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      color: var(--text);
+      font-size: 1rem;
+      font-family: inherit;
+    }
+
+    #post-form button {
+      background: var(--button-post);
+      border: none;
+      border-radius: 8px;
+      padding: 0.75rem;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: filter 0.2s ease;
+    }
+
+    #post-form button:disabled {
+      background: var(--button-disabled);
+      cursor: not-allowed;
+    }
+
+    #post-form .buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+    }
+
+    #error-msg {
+      color: #ff7373;
+      font-size: 0.9rem;
+      min-height: 1.2em;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 1.5rem 1rem 4rem;
+      }
+
+      #post-form {
+        padding: 1rem 1rem;
+      }
+    }
+  </style>
 </head>
 <body>
-	<img src="https://raw.githubusercontent.com/stardriftr/stardriftr.github.io/main/images/star_driftr_logo.png" alt="STAR DRIFTR Logo" class="logo" onclick="goHome()" />
-	<p class="subtitle">An anonymous timeline of dreams</p>
+  <img src="https://raw.githubusercontent.com/stardriftr/stardriftr.github.io/main/images/star_driftr_logo.png" alt="STAR DRIFTR Logo" class="logo" onclick="goHome()" />
+  <p class="subtitle">An anonymous timeline of dreams</p>
 
-	<!-- Added loading overlay -->
-	<div id="loading-overlay">
-		<div class="spinner"></div>
-	</div>
+  <div id="loading-overlay">
+    <div class="spinner"></div>
+  </div>
 
-	<div class="timeline" id="timeline">
-		<!-- Dreams will be injected here -->
-	</div>
+  <div class="timeline" id="timeline"></div>
 
-	<button class="post-fab" onclick="goToTop()">Post</button>
+  <button class="post-fab" id="open-post-btn" title="Post your dream">Post</button>
 
-	<script>
-		const API_URL = 'https://stardriftr-api.calembeaz.workers.dev/dreams';
-		const timeline = document.getElementById('timeline');
+  <!-- Post Modal -->
+  <div id="post-modal" role="dialog" aria-modal="true" aria-labelledby="post-title">
+    <form id="post-form">
+      <h2 id="post-title" style="color: var(--highlight);">Share Your Dream</h2>
+      <textarea id="dream-input" placeholder="Write your dream here..." required minlength="5"></textarea>
+      <div id="error-msg" aria-live="polite"></div>
+      <div class="buttons">
+        <button type="button" id="cancel-btn">Cancel</button>
+        <button type="submit" id="submit-btn" disabled>Post Dream</button>
+      </div>
+    </form>
+  </div>
 
-		function randomEmoji() {
-			const emojis = ['😴', '🌌', '👁️', '🌀', '🌙', '🛌'];
-			return emojis[Math.floor(Math.random() * emojis.length)];
-		}
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
-		function fallbackAnon(i) {
-			return 'Anon-' + String(1000 + i);
-		}
+    const firebaseConfig = {
+      apiKey: "AIzaSyBkI9Gnob-bIpZL0m6E8pf7lO8f7dlrYYg",
+      authDomain: "stardriftr.firebaseapp.com",
+      projectId: "stardriftr",
+      storageBucket: "stardriftr.firebasestorage.app",
+      messagingSenderId: "115649067004",
+      appId: "1:115649067004:web:e24fdd5a8447f92f342479",
+      measurementId: "G-Q62KZDRBWG"
+    };
 
-		async function load() {
-			const loadingOverlay = document.getElementById('loading-overlay');
-			try {
-				const res = await fetch(API_URL);
-				const list = await res.json();
-				timeline.innerHTML = '';
-				list
-					.sort((a, b) => Number(b.time) - Number(a.time))
-					.forEach((d, i) => {
-						const div = document.createElement('div');
-						div.className = 'dream';
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-						// use display_name if available, otherwise fallback
-						const name = d.display_name?.trim() || fallbackAnon(i);
+    const API_URL = 'https://stardriftr-api.calembeaz.workers.dev/dreams';
+    const timeline = document.getElementById('timeline');
+    const loadingOverlay = document.getElementById('loading-overlay');
 
-						div.innerHTML = `
-							<div class="meta">
-								<span><span class="emoji">${randomEmoji()}</span> <span class="username">${name}</span></span>
-								<span>${new Date(Number(d.time)).toLocaleString()}</span>
-							</div>
-							${d.image ? `<img src="${d.image}" alt="Dream image" style="max-width:100%; margin-top:8px; border-radius: 6px;" />` : ''}
-							<div class="body">${d.original}</div>
-							<div class="actions">
-								<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z"/></svg>
-								<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.74 0 3.41 1.01 4.13 2.44h.74C13.09 5.01 14.76 4 16.5 4 19 4 21 6 21 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-							</div>
-						`;
-						timeline.appendChild(div);
-					});
-			} catch (err) {
-				console.error('Error loading timeline:', err);
-			} finally {
-				loadingOverlay.style.display = 'none'; // Hide spinner when done
-			}
-		}
+    const postModal = document.getElementById('post-modal');
+    const openPostBtn = document.getElementById('open-post-btn');
+    const cancelBtn = document.getElementById('cancel-btn');
+    const postForm = document.getElementById('post-form');
+    const dreamInput = document.getElementById('dream-input');
+    const errorMsg = document.getElementById('error-msg');
+    const submitBtn = document.getElementById('submit-btn');
 
-		function goHome() {
-			window.location.href = "index.html";
-		}
+    let currentUser = null;
 
-		function goToTop() {
-			window.location.href = 'index.html';
-		}
+    function randomEmoji() {
+      const emojis = ['😴', '🌌', '👁️', '🌀', '🌙', '🛌'];
+      return emojis[Math.floor(Math.random() * emojis.length)];
+    }
 
-		load();
-	</script>
-</body>
-</html>
+    function fallbackAnon(i) {
+      return 'Anon-' + String(1000 + i);
+    }
+
+    // Show loading overlay
+    function showLoading() {
+      loadingOverlay.style.display = 'flex';
+    }
+
+    // Hide loading overlay
+    function hideLoading() {
+      loadingOverlay.style.display = 'none';
+    }
+
+    // Load timeline dreams
+    async function loadTimeline() {
+      showLoading();
+      try {
+        const res = await fetch(API_URL);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        const list = await res.json();
+        timeline.innerHTML = '';
+
+        list
+          .sort((a, b) => Number(b.time) - Number(a.time))
+          .forEach((d, i) => {
+            const div = document.createElement('div');
+            div.className = 'dream';
+
+            const name = d.display_name?.trim() || fallbackAnon(i);
+            div.innerHTML = `
+              <div class="meta">
+                <span><span class="emoji">${randomEmoji()}</span> <span class="username">${name}</span></span>
+                <span>${new Date(Number(d.time)).toLocaleString()}</span>
+              </div>
+              ${d.image ? `<img src="${d.image}" alt="Dream image" style="max-width:100%; margin-top:8px; border-radius: 6px;" />` : ''}
+              <div class="body">${escapeHtml(d.original)}</div>
+            `;
+
+            timeline.appendChild(div);
+          });
+      } catch (err) {
+        timeline.innerHTML = `<p style="color: #f66; text-align:center; margin-top: 1rem;">Failed to load dreams: ${escapeHtml(err.message)}</p>`;
+        console.error('Error loading timeline:', err);
+      } finally {
+        hideLoading();
+      }
+    }
+
+    // Escape HTML to prevent XSS
+    function escapeHtml(text) {
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    // Show post modal
+    function openPostModal(prefill = '') {
+      dreamInput.value = prefill;
+      errorMsg.textContent = '';
+      submitBtn.disabled = dreamInput.value.trim().length < 5;
+      postModal.classList.add('active');
+      dreamInput.focus();
+    }
+
+    // Hide post modal
+    function closePostModal() {
+      postModal.classList.remove('active');
+      errorMsg.textContent = '';
+      dreamInput.value = '';
+    }
+
+    // Validate dream input length
+    dreamInput.addEventListener('input', () => {
+      submitBtn.disabled = dreamInput.value.trim().length < 5;
+      errorMsg.textContent = '';
+    });
+
+    // Submit new dream post
+    postForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      if (!currentUser) {
+        errorMsg.textContent = 'You must be signed in to post.';
+        return;
+      }
+
+      const dreamText = dreamInput.value.trim();
+      if (dreamText.length < 5) {
+        errorMsg.textContent = 'Dream is too short.';
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Posting...';
+
+      try {
+        const postPayload = {
+          uid: currentUser.uid,
+          display_name: currentUser.displayName || 'Anonymous',
+          original: dreamText,
+          time: Date.now(),
+        };
+
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(postPayload),
+        });
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(`Failed to post dream: ${res.status} ${errorText}`);
+        }
+
+        // Clear pending dream from sessionStorage if it matches
+        const pendingDream = sessionStorage.getItem('pendingDream');
+        if (pendingDream && pendingDream === dreamText) {
+          sessionStorage.removeItem('pendingDream');
+        }
+
+        closePostModal();
+        await loadTimeline();
+
+      } catch (err) {
+        errorMsg.textContent = err.message;
+        console.error(err);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Post Dream';
+      }
+    });
+
+    // Auth state listener
+    onAuthStateChanged(auth, user => {
+      currentUser = user;
+
+      // If user logged in, check if there's a pending dream in sessionStorage
+      if (user) {
+        const pendingDream = sessionStorage.getItem('pendingDream');
+        if (
