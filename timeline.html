@@ -215,7 +215,7 @@
 			} catch (err) {
 				console.error('Error loading timeline:', err);
 			} finally {
-				loadingOverlay.style.display = 'none';
+				document.getElementById('loading-overlay').style.display = 'none';
 			}
 		}
 
@@ -227,36 +227,6 @@
 			window.location.href = 'index.html';
 		}
 
-		// === New: Check for pending dream in localStorage ===
-		async function checkAndPostPendingDream() {
-			const pendingDream = localStorage.getItem('pendingDream');
-			if (!pendingDream) return;
-
-			showPopup("Posting dream...");
-			try {
-				const uid = localStorage.getItem("uid");
-				const token = localStorage.getItem("authToken");
-				if (!uid || !token) throw new Error("Not logged in");
-
-				const res = await fetch(`${POST_URL}/${uid}`, {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-						"Authorization": `Bearer ${token}`
-					},
-					body: JSON.stringify({ text: pendingDream })
-				});
-				if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-				localStorage.removeItem('pendingDream');
-				showPopup("Dream posted!");
-				await load();
-			} catch (err) {
-				console.error("Failed to post pending dream:", err);
-				showPopup("Failed to post dream");
-			}
-		}
-
 		function showPopup(msg) {
 			const popup = document.getElementById("popup");
 			popup.textContent = msg;
@@ -264,8 +234,40 @@
 			setTimeout(() => popup.style.display = "none", 3000);
 		}
 
-		// Load timeline first, then check pending dream
-		load().then(checkAndPostPendingDream);
+		// Post pending dream if exists, then load timeline
+		(async () => {
+			const pendingDream = localStorage.getItem('pendingDream');
+			if (pendingDream) {
+				showPopup("Posting your dream...");
+				try {
+					const uid = localStorage.getItem("uid");
+					const token = localStorage.getItem("authToken");
+
+					if (!uid || !token) {
+						console.warn("Not logged in, cannot post dream");
+						showPopup("You must log in to post dreams");
+					} else {
+						const res = await fetch(`${POST_URL}/${uid}`, {
+							method: "POST",
+							headers: {
+								"Content-Type": "application/json",
+								"Authorization": `Bearer ${token}`
+							},
+							body: JSON.stringify({ text: pendingDream })
+						});
+						if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+						localStorage.removeItem('pendingDream');
+						showPopup("Dream posted!");
+					}
+				} catch (err) {
+					console.error("Failed to post pending dream:", err);
+					showPopup("Failed to post dream");
+				}
+			}
+
+			await load();
+		})();
 	</script>
 </body>
 </html>
