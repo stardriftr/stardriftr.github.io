@@ -122,39 +122,46 @@
   const userInfo = document.getElementById('user-info');
 
   onAuthStateChanged(auth, async user => {
-    if (user) {
-      console.log("✅ User signed in:", user.uid);
-      btn.style.display = 'none';
+  if (user) {
+    console.log("✅ User signed in:", user.uid);
+    btn.style.display = 'none';
 
-      try {
-        console.log("🔄 Fetching profile from /users...");
-        const res = await fetch('https://stardriftr-api.calembeaz.workers.dev/users', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ uid: user.uid }),
-        });
+    try {
+      console.log("🔄 Fetching profile from /users...");
+      const res = await fetch('https://stardriftr-api.calembeaz.workers.dev/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid: user.uid }),
+      });
 
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
-        const profile = await res.json();
-        console.log("✅ User profile loaded:", profile);
-        userInfo.textContent = `Hello, ${profile.username}`;
+      const profile = await res.json();
+      console.log("✅ User profile loaded:", profile);
+      userInfo.textContent = `Hello, ${profile.username}`;
 
-        // ✅ No dream posting here — just redirect
-        console.log("➡️ Redirecting to timeline immediately...");
-        window.location.href = 'timeline.html';
+      // Save UID to localStorage (preserving dream text if present)
+      localStorage.setItem('uid', user.uid);
+      localStorage.setItem('username', profile.username);
 
-      } catch (err) {
-        console.error("❌ Error fetching profile:", err);
-        userInfo.textContent = `Failed to load profile: ${err.message}`;
-        btn.style.display = 'block';
-      }
-    } else {
-      console.log("ℹ️ No user is signed in");
+      // Do NOT overwrite existing pendingDreamText, just keep it if it exists
+      // (No change here needed if already saved earlier on index page)
+
+      console.log("➡️ Redirecting to timeline...");
+      window.location.href = 'timeline.html';
+
+    } catch (err) {
+      console.error("❌ Error fetching profile:", err);
+      userInfo.textContent = `Failed to load profile: ${err.message}`;
       btn.style.display = 'block';
-      userInfo.textContent = '';
     }
-  });
+  } else {
+    console.log("ℹ️ No user is signed in");
+    btn.style.display = 'block';
+    userInfo.textContent = '';
+  }
+});
+
 
   btn.addEventListener('click', async () => {
     btn.disabled = true;
@@ -172,3 +179,4 @@
 </script>
 </body>
 </html>
+
