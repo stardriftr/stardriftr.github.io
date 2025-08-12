@@ -236,34 +236,42 @@
   }
 
   async function postPendingDream() {
-    const pendingDream = localStorage.getItem('pendingDream');
-    if (!pendingDream) return;
+  const pendingDream = localStorage.getItem('pendingDream');
+  const uid = localStorage.getItem('uid');
 
-    showPopup("Posting your dream...");
-    try {
-      const res = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: pendingDream }),
-      });
+  if (!pendingDream || !uid) return;
 
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`HTTP ${res.status}: ${text}`);
-      }
+  showPopup("Posting your dream...");
 
-      localStorage.removeItem('pendingDream');
-      showPopup("Dream posted!");
-    } catch (err) {
-      console.error("Failed to post pending dream:", err);
-      showPopup("Failed to post dream");
+  try {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: pendingDream, uid }),
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`HTTP ${res.status}: ${text}`);
     }
-  }
 
-  window.addEventListener('load', async () => {
-    await postPendingDream();
-    await load();
-  });
+    localStorage.removeItem('pendingDream');
+    // Optional: you can remove uid here if you want, or keep for future posts
+    // localStorage.removeItem('uid');
+
+    showPopup("Dream posted!");
+  } catch (err) {
+    console.error("Failed to post pending dream:", err);
+    showPopup("Failed to post dream");
+  }
+}
+
+window.addEventListener('load', async () => {
+  await postPendingDream();
+  await load();
+});
+
 </script>
 </body>
 </html>
+
