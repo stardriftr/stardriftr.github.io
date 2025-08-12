@@ -247,7 +247,7 @@
     const res = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: pendingDream, uid }),
+      body: JSON.stringify({ text: pendingDream, uid: uid }),
     });
 
     if (!res.ok) {
@@ -274,4 +274,5 @@ window.addEventListener('load', async () => {
 </script>
 </body>
 </html>
+
 
