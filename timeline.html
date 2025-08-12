@@ -14,7 +14,13 @@
 			--heart: #ffe69b;
 			--button-post: #5492a5;
 		}
-		* { box-sizing: border-box; margin: 0; padding: 0; }
+
+		* {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+		}
+
 		body {
 			background: var(--bg);
 			color: var(--text);
@@ -24,13 +30,20 @@
 			flex-direction: column;
 			align-items: center;
 		}
+
 		.logo {
 			width: 55px;
 			height: 55px;
 			margin-bottom: 0.5rem;
 			cursor: pointer;
 		}
-		.subtitle { color: var(--dim); font-size: 0.95rem; margin-bottom: 2rem; }
+
+		.subtitle {
+			color: var(--dim);
+			font-size: 0.95rem;
+			margin-bottom: 2rem;
+		}
+
 		.timeline {
 			width: 100%;
 			max-width: 500px;
@@ -38,6 +51,7 @@
 			flex-direction: column;
 			gap: 1.25rem;
 		}
+
 		.dream {
 			background: var(--card);
 			border-radius: 8px;
@@ -46,27 +60,44 @@
 			flex-direction: column;
 			gap: 0.5rem;
 		}
+
 		.dream .meta {
 			display: flex;
 			justify-content: space-between;
 			font-size: 0.75rem;
 			color: var(--dim);
 		}
-		.dream .body { font-size: 0.95rem; line-height: 1.5; }
+
+		.dream .body {
+			font-size: 0.95rem;
+			line-height: 1.5;
+		}
+
 		.dream .actions {
 			display: flex;
 			justify-content: flex-end;
 			gap: 1rem;
 			margin-top: 0.5rem;
 		}
+
 		.dream .actions svg {
 			width: 18px;
 			height: 18px;
 			fill: var(--dim);
 			cursor: pointer;
 		}
-		.dream .emoji { font-size: 1rem; margin-right: 0.5rem; }
-		.dream .username { font-weight: 500; font-size: 0.85rem; color: var(--highlight); }
+
+		.dream .emoji {
+			font-size: 1rem;
+			margin-right: 0.5rem;
+		}
+
+		.dream .username {
+			font-weight: 500;
+			font-size: 0.85rem;
+			color: var(--highlight);
+		}
+
 		.post-fab {
 			position: fixed;
 			bottom: 1.5rem;
@@ -82,7 +113,11 @@
 			box-shadow: 0 4px 12px rgba(0,0,0,0.25);
 			z-index: 1000;
 		}
-		.post-fab:hover { filter: brightness(1.1); }
+
+		.post-fab:hover {
+			filter: brightness(1.1);
+		}
+
 		#loading-overlay {
 			position: fixed;
 			top: 0;
@@ -95,6 +130,7 @@
 			align-items: center;
 			z-index: 2000;
 		}
+
 		.spinner {
 			border: 5px solid #333;
 			border-top: 5px solid var(--highlight);
@@ -103,7 +139,22 @@
 			height: 48px;
 			animation: spin 1s linear infinite;
 		}
-		@keyframes spin { to { transform: rotate(360deg); } }
+
+		@keyframes spin {
+			to { transform: rotate(360deg); }
+		}
+
+		#popup {
+			position: fixed;
+			top: 20px;
+			right: 20px;
+			padding: 10px 20px;
+			background: #333;
+			color: #fff;
+			border-radius: 8px;
+			z-index: 3000;
+			display: none;
+		}
 	</style>
 </head>
 <body>
@@ -116,10 +167,13 @@
 
 	<div class="timeline" id="timeline"></div>
 
+	<div id="popup"></div>
+
 	<button class="post-fab" onclick="goToTop()">Post</button>
 
 	<script>
 		const API_URL = 'https://stardriftr-api.calembeaz.workers.dev/dreams';
+		const POST_URL = 'https://stardriftr-api.calembeaz.workers.dev/dream';
 		const timeline = document.getElementById('timeline');
 
 		function randomEmoji() {
@@ -136,16 +190,11 @@
 			try {
 				const res = await fetch(API_URL);
 				const list = await res.json();
-
-				// Clear pendingDream after successful fetch
-				if (localStorage.getItem('pendingDream')) {
-					localStorage.removeItem('pendingDream');
-				}
-
 				timeline.innerHTML = '';
 				list
 					.sort((a, b) => Number(b.time) - Number(a.time))
 					.forEach((d, i) => {
+						if (!d || !d.original) return; // skip empty
 						const div = document.createElement('div');
 						div.className = 'dream';
 						const name = d.display_name?.trim() || fallbackAnon(i);
@@ -170,10 +219,53 @@
 			}
 		}
 
-		function goHome() { window.location.href = "index.html"; }
-		function goToTop() { window.location.href = 'index.html'; }
+		function goHome() {
+			window.location.href = "index.html";
+		}
 
-		load();
+		function goToTop() {
+			window.location.href = 'index.html';
+		}
+
+		// === New: Check for pending dream in localStorage ===
+		async function checkAndPostPendingDream() {
+			const pendingDream = localStorage.getItem('pendingDream');
+			if (!pendingDream) return;
+
+			showPopup("Posting dream...");
+			try {
+				const uid = localStorage.getItem("uid");
+				const token = localStorage.getItem("authToken");
+				if (!uid || !token) throw new Error("Not logged in");
+
+				const res = await fetch(`${POST_URL}/${uid}`, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						"Authorization": `Bearer ${token}`
+					},
+					body: JSON.stringify({ text: pendingDream })
+				});
+				if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+				localStorage.removeItem('pendingDream');
+				showPopup("Dream posted!");
+				await load();
+			} catch (err) {
+				console.error("Failed to post pending dream:", err);
+				showPopup("Failed to post dream");
+			}
+		}
+
+		function showPopup(msg) {
+			const popup = document.getElementById("popup");
+			popup.textContent = msg;
+			popup.style.display = "block";
+			setTimeout(() => popup.style.display = "none", 3000);
+		}
+
+		// Load timeline first, then check pending dream
+		load().then(checkAndPostPendingDream);
 	</script>
 </body>
 </html>
