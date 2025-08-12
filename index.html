@@ -150,7 +150,7 @@
       const text = textarea.value.trim();
       if (!text) return;
 
-      // Save dream text locally
+      // Save dream text locally for later posting
       localStorage.setItem('pendingDream', text);
 
       // Show popup briefly
@@ -158,7 +158,7 @@
 
       setTimeout(() => {
         popup.style.display = 'none';
-        // Redirect to login page to authenticate before posting
+        // Redirect to login (timeline will post dream after login)
         window.location.href = 'login.html';
       }, 1000);
     });
@@ -169,4 +169,3 @@
   </script>
 </body>
 </html>
-
