@@ -150,8 +150,8 @@
       const text = textarea.value.trim();
       if (!text) return;
 
-      // Save dream text locally
-      localStorage.setItem('pendingDream', text);
+      // Save dream text in sessionStorage
+      sessionStorage.setItem('pendingDream', text);
 
       // Show popup briefly
       popup.style.display = 'block';
