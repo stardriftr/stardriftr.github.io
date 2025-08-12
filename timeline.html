@@ -173,7 +173,6 @@
 
 <script>
   const API_URL = 'https://stardriftr-api.calembeaz.workers.dev/dreams';
-  const POST_URL = 'https://stardriftr-api.calembeaz.workers.dev/dream';
   const timeline = document.getElementById('timeline');
 
   function randomEmoji() {
@@ -238,45 +237,25 @@
 
   async function postPendingDream() {
     const pendingDream = localStorage.getItem('pendingDream');
-    if (!pendingDream) {
-      console.log("No pending dream found");
-      return;
-    }
+    if (!pendingDream) return;
+
     showPopup("Posting your dream...");
-    console.log("Found pending dream:", pendingDream);
-
     try {
-      const uid = localStorage.getItem("uid");
-      const token = localStorage.getItem("authToken");
-
-      if (!uid || !token) {
-        console.warn("No UID or auth token found");
-        showPopup("You must log in to post dreams");
-        return;
-      }
-
-      const response = await fetch(`${POST_URL}/${uid}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({ text: pendingDream })
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: pendingDream }),
       });
 
-      console.log("Post response status:", response.status);
-
-      if (!response.ok) {
-        const text = await response.text();
-        throw new Error(`Failed to post dream: ${response.status} ${text}`);
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`HTTP ${res.status}: ${text}`);
       }
 
       localStorage.removeItem('pendingDream');
       showPopup("Dream posted!");
-      console.log("Dream posted successfully and removed from localStorage");
-
-    } catch (error) {
-      console.error("Error posting dream:", error);
+    } catch (err) {
+      console.error("Failed to post pending dream:", err);
       showPopup("Failed to post dream");
     }
   }
