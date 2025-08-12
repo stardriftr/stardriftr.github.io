@@ -14,13 +14,7 @@
 			--heart: #ffe69b;
 			--button-post: #5492a5;
 		}
-
-		* {
-			box-sizing: border-box;
-			margin: 0;
-			padding: 0;
-		}
-
+		* { box-sizing: border-box; margin: 0; padding: 0; }
 		body {
 			background: var(--bg);
 			color: var(--text);
@@ -30,20 +24,13 @@
 			flex-direction: column;
 			align-items: center;
 		}
-
 		.logo {
 			width: 55px;
 			height: 55px;
 			margin-bottom: 0.5rem;
 			cursor: pointer;
 		}
-
-		.subtitle {
-			color: var(--dim);
-			font-size: 0.95rem;
-			margin-bottom: 2rem;
-		}
-
+		.subtitle { color: var(--dim); font-size: 0.95rem; margin-bottom: 2rem; }
 		.timeline {
 			width: 100%;
 			max-width: 500px;
@@ -51,7 +38,6 @@
 			flex-direction: column;
 			gap: 1.25rem;
 		}
-
 		.dream {
 			background: var(--card);
 			border-radius: 8px;
@@ -60,44 +46,27 @@
 			flex-direction: column;
 			gap: 0.5rem;
 		}
-
 		.dream .meta {
 			display: flex;
 			justify-content: space-between;
 			font-size: 0.75rem;
 			color: var(--dim);
 		}
-
-		.dream .body {
-			font-size: 0.95rem;
-			line-height: 1.5;
-		}
-
+		.dream .body { font-size: 0.95rem; line-height: 1.5; }
 		.dream .actions {
 			display: flex;
 			justify-content: flex-end;
 			gap: 1rem;
 			margin-top: 0.5rem;
 		}
-
 		.dream .actions svg {
 			width: 18px;
 			height: 18px;
 			fill: var(--dim);
 			cursor: pointer;
 		}
-
-		.dream .emoji {
-			font-size: 1rem;
-			margin-right: 0.5rem;
-		}
-
-		.dream .username {
-			font-weight: 500;
-			font-size: 0.85rem;
-			color: var(--highlight);
-		}
-
+		.dream .emoji { font-size: 1rem; margin-right: 0.5rem; }
+		.dream .username { font-weight: 500; font-size: 0.85rem; color: var(--highlight); }
 		.post-fab {
 			position: fixed;
 			bottom: 1.5rem;
@@ -113,12 +82,7 @@
 			box-shadow: 0 4px 12px rgba(0,0,0,0.25);
 			z-index: 1000;
 		}
-
-		.post-fab:hover {
-			filter: brightness(1.1);
-		}
-
-		/* Added loading overlay styles */
+		.post-fab:hover { filter: brightness(1.1); }
 		#loading-overlay {
 			position: fixed;
 			top: 0;
@@ -131,7 +95,6 @@
 			align-items: center;
 			z-index: 2000;
 		}
-
 		.spinner {
 			border: 5px solid #333;
 			border-top: 5px solid var(--highlight);
@@ -140,24 +103,18 @@
 			height: 48px;
 			animation: spin 1s linear infinite;
 		}
-
-		@keyframes spin {
-			to { transform: rotate(360deg); }
-		}
+		@keyframes spin { to { transform: rotate(360deg); } }
 	</style>
 </head>
 <body>
 	<img src="https://raw.githubusercontent.com/stardriftr/stardriftr.github.io/main/images/star_driftr_logo.png" alt="STAR DRIFTR Logo" class="logo" onclick="goHome()" />
 	<p class="subtitle">An anonymous timeline of dreams</p>
 
-	<!-- Added loading overlay -->
 	<div id="loading-overlay">
 		<div class="spinner"></div>
 	</div>
 
-	<div class="timeline" id="timeline">
-		<!-- Dreams will be injected here -->
-	</div>
+	<div class="timeline" id="timeline"></div>
 
 	<button class="post-fab" onclick="goToTop()">Post</button>
 
@@ -179,16 +136,19 @@
 			try {
 				const res = await fetch(API_URL);
 				const list = await res.json();
+
+				// Clear pendingDream after successful fetch
+				if (localStorage.getItem('pendingDream')) {
+					localStorage.removeItem('pendingDream');
+				}
+
 				timeline.innerHTML = '';
 				list
 					.sort((a, b) => Number(b.time) - Number(a.time))
 					.forEach((d, i) => {
 						const div = document.createElement('div');
 						div.className = 'dream';
-
-						// use display_name if available, otherwise fallback
 						const name = d.display_name?.trim() || fallbackAnon(i);
-
 						div.innerHTML = `
 							<div class="meta">
 								<span><span class="emoji">${randomEmoji()}</span> <span class="username">${name}</span></span>
@@ -206,17 +166,12 @@
 			} catch (err) {
 				console.error('Error loading timeline:', err);
 			} finally {
-				loadingOverlay.style.display = 'none'; // Hide spinner when done
+				loadingOverlay.style.display = 'none';
 			}
 		}
 
-		function goHome() {
-			window.location.href = "index.html";
-		}
-
-		function goToTop() {
-			window.location.href = 'index.html';
-		}
+		function goHome() { window.location.href = "index.html"; }
+		function goToTop() { window.location.href = 'index.html'; }
 
 		load();
 	</script>
