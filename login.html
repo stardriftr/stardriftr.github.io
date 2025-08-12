@@ -59,7 +59,6 @@
       transition: background-color 0.3s ease;
       max-width: 400px;
       width: 100%;
-      max-width: 400px;
       text-align: center;
       user-select: none;
     }
@@ -141,36 +140,9 @@
         console.log("✅ User profile loaded:", profile);
         userInfo.textContent = `Hello, ${profile.username}`;
 
-        // ✅ Check for pending dream
-        const pendingDream = localStorage.getItem('pendingDream');
-        if (pendingDream) {
-          console.log("🌙 Found pending dream:", pendingDream);
-          try {
-            const dreamRes = await fetch("https://stardriftr-api.calembeaz.workers.dev/dreams", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                text: pendingDream,
-                uid: user.uid,
-                username: profile.username,
-                display_name: profile.display_name,
-              }),
-            });
-
-            if (!dreamRes.ok) throw new Error("Failed to post dream");
-            console.log("✅ Dream posted successfully");
-            localStorage.removeItem('pendingDream');
-          } catch (dreamErr) {
-            console.error("❌ Error posting pending dream:", dreamErr);
-          }
-        } else {
-          console.log("ℹ️ No pending dream found");
-        }
-
-        console.log("➡️ Redirecting to timeline in 1s...");
-        setTimeout(() => {
-          window.location.href = 'timeline.html';
-        }, 1000);
+        // ✅ No dream posting here — just redirect
+        console.log("➡️ Redirecting to timeline immediately...");
+        window.location.href = 'timeline.html';
 
       } catch (err) {
         console.error("❌ Error fetching profile:", err);
@@ -200,7 +172,3 @@
 </script>
 </body>
 </html>
-
-
-
-
