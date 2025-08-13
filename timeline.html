@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Dream Timeline</title>
 <style>
   :root {
@@ -13,24 +13,13 @@
     --highlight: #ffe379;
     --heart: #ffe69b;
     --button-post: #5492a5;
+    --offwhite: #ffffe3;
   }
 
   * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-  }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: system-ui, sans-serif;
-    padding: 2rem 1rem 60px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-    position: relative;
   }
 
   /* HEADER */
@@ -48,14 +37,16 @@
     padding: 0 1.25rem;
     z-index: 1500;
     transition: transform 0.3s ease;
+    margin-bottom: 40px;
+    /*box-shadow: 0 -2px 8px rgba(0,0,0,0.6);*/
   }
   header.hidden {
     transform: translateY(-100%);
   }
 
   .logo {
-    width: 49.5px; /* 10% smaller */
-    height: 49.5px;
+    width: 40px; /* 10% smaller */
+    height: 40px;
     cursor: pointer;
   }
 
@@ -70,18 +61,31 @@
   .hamburger {
     width: 24px;
     height: 24px;
-    fill: var(--highlight);
+    fill: var(--offwhite);
   }
 
-  /* TIMELINE */
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, sans-serif;
+    padding: 2rem 1rem 4rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .subtitle {
+    color: var(--dim);
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
+  }
+
   .timeline {
     width: 100%;
     max-width: 500px;
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
-    margin-top: 50px; /* pushes posts down 100px from top */
-}
   }
 
   .dream {
@@ -130,10 +134,9 @@
     color: var(--highlight);
   }
 
-  /* POST BUTTON */
   .post-fab {
     position: fixed;
-    bottom: 1.5rem;
+    bottom: 4.5rem;
     right: 1.25rem;
     background: var(--button-post);
     color: white;
@@ -151,7 +154,6 @@
     filter: brightness(1.1);
   }
 
-  /* LOADING OVERLAY */
   #loading-overlay {
     position: fixed;
     top: 0;
@@ -167,7 +169,7 @@
 
   .spinner {
     border: 5px solid #333;
-    border-top: 5px solid var(--highlight);
+    border-top: 5px solid var(--offwhite);
     border-radius: 50%;
     width: 48px;
     height: 48px;
@@ -178,7 +180,6 @@
     to { transform: rotate(360deg); }
   }
 
-  /* POPUP */
   #popup {
     position: fixed;
     top: 20px;
@@ -197,7 +198,7 @@
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 40px;
+    height: 60px;
     background: rgba(26, 26, 26, 0.6);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
@@ -205,12 +206,12 @@
     align-items: center;
     justify-content: space-between;
     padding: 0 1.5rem;
-    box-shadow: 0 -2px 8px rgba(0,0,0,0.6);
+    /*box-shadow: 0 -2px 8px rgba(0,0,0,0.6);*/
     z-index: 1500;
   }
 
   #bottom-bar svg {
-    fill: var(--highlight);
+    fill: var(--offwhite);
     width: 24px;
     height: 24px;
     cursor: pointer;
@@ -221,10 +222,11 @@
   #bottom-bar svg:hover {
     fill: var(--heart);
   }
+
 </style>
 </head>
 <body>
-  <header id="header">
+	<header id="header">
     <img
       src="https://raw.githubusercontent.com/stardriftr/stardriftr.github.io/main/images/star_driftr_logo.png"
       alt="STAR DRIFTR Logo"
@@ -295,67 +297,114 @@
           if (!d || !d.original) return;
           const div = document.createElement('div');
           div.className = 'dream';
+
           const name = d.display_name?.trim() || fallbackAnon(i);
+
+          // Truncate dream text if over 200 chars
+          let fullText = d.original;
+          let isTruncated = fullText.length > 200;
+          let displayText = isTruncated ? fullText.slice(0, 200) + '...' : fullText;
+
           div.innerHTML = `
             <div class="meta">
               <span><span class="emoji">${randomEmoji()}</span> <span class="username">${name}</span></span>
               <span>${new Date(Number(d.time)).toLocaleString()}</span>
             </div>
             ${d.image ? `<img src="${d.image}" alt="Dream image" style="max-width:100%; margin-top:8px; border-radius: 6px;" />` : ''}
-            <div class="body">${d.original}</div>
+            <div class="body">
+              ${displayText}
+              ${
+                isTruncated
+                  ? `<div class="expand-link" style="color:#5492a5; cursor:pointer; font-weight:bold; text-decoration:none; margin-top:4px;">Expand full dream</div>`
+                  : ''
+              }
+            </div>
             <div class="actions">
-              <svg viewBox="0 0 24 24" title="Like" tabindex="0"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+              <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z"/></svg>
+              <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.74 0 3.41 1.01 4.13 2.44h.74C13.09 5.01 14.76 4 16.5 4 19 4 21 6 21 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
             </div>
           `;
+
+          // Add click event for toggling text
+          if (isTruncated) {
+            const expandLink = div.querySelector('.expand-link');
+            expandLink.addEventListener('click', () => {
+              const bodyDiv = expandLink.parentElement;
+              if (expandLink.textContent === 'Expand full dream') {
+                bodyDiv.innerHTML = fullText + `<div class="expand-link" style="color:#5492a5; cursor:pointer; font-weight:bold; text-decoration:none; margin-top:4px;">Hide full dream</div>`;
+                bodyDiv.querySelector('.expand-link').addEventListener('click', () => {
+                  bodyDiv.innerHTML = displayText + `<div class="expand-link" style="color:#5492a5; cursor:pointer; font-weight:bold; text-decoration:none; margin-top:4px;">Expand full dream</div>`;
+                  bodyDiv.querySelector('.expand-link').addEventListener('click', arguments.callee);
+                });
+              }
+            });
+          }
+
           timeline.appendChild(div);
         });
-    } catch (e) {
-      timeline.innerHTML = `<p style="color:#f44;">Error loading timeline: ${e.message}</p>`;
+    } catch (err) {
+      console.error('Error loading timeline:', err);
+      showPopup(`Error loading timeline: ${err.message}`);
     } finally {
-      loadingOverlay.style.display = 'none';
+      document.getElementById('loading-overlay').style.display = 'none';
     }
   }
 
+
+
+
   function goHome() {
-    alert('Home clicked');
+    window.location.href = "index.html";
   }
 
   function goToTop() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.location.href = 'index.html';
   }
 
-  function toggleMenu() {
-    alert('Menu clicked');
+  function showPopup(msg) {
+    const popup = document.getElementById("popup");
+    popup.textContent = msg;
+    popup.style.display = "block";
+    setTimeout(() => popup.style.display = "none", 3000);
   }
 
-  // Scroll header show/hide logic
-  let lastScrollY = window.scrollY;
-  let ticking = false;
-  const header = document.getElementById('header');
+  async function postPendingDream() {
+  const pendingDream = localStorage.getItem('pendingDream');
+  const uid = localStorage.getItem('uid');
 
-  function onScroll() {
-    const currentScrollY = window.scrollY;
+  if (!pendingDream || !uid) return;
 
-    if (currentScrollY < 10) {
-      header.classList.remove('hidden');
-    } else if (currentScrollY > lastScrollY) {
-      header.classList.add('hidden');
-    } else {
-      header.classList.remove('hidden');
+  showPopup("Posting your dream...");
+
+  try {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: pendingDream, uid: uid }),
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`HTTP ${res.status}: ${text}`);
     }
-    lastScrollY = currentScrollY;
-    ticking = false;
+
+    localStorage.removeItem('pendingDream');
+    // Optional: you can remove uid here if you want, or keep for future posts
+    // localStorage.removeItem('uid');
+
+    showPopup("Dream posted!");
+  } catch (err) {
+    console.error("Failed to post pending dream:", err);
+    showPopup("Failed to post dream");
   }
+}
 
-  window.addEventListener('scroll', () => {
-    if (!ticking) {
-      window.requestAnimationFrame(onScroll);
-      ticking = true;
-    }
-  });
+window.addEventListener('load', async () => {
+  await postPendingDream();
+  await load();
+});
 
-  // Kick off initial load
-  load();
 </script>
 </body>
 </html>
+
