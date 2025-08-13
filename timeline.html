@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Dream Timeline</title>
 <style>
   :root {
@@ -25,31 +25,63 @@
     background: var(--bg);
     color: var(--text);
     font-family: system-ui, sans-serif;
-    padding: 2rem 1rem 4rem;
+    padding: 2rem 1rem 60px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    min-height: 100vh;
+    position: relative;
+  }
+
+  /* HEADER */
+  header {
+    position: sticky;
+    top: 0;
+    width: 100vw;
+    height: 60px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    background: rgba(13, 13, 13, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1.25rem;
+    z-index: 1500;
+    transition: transform 0.3s ease;
+  }
+  header.hidden {
+    transform: translateY(-100%);
   }
 
   .logo {
-    width: 55px;
-    height: 55px;
-    margin-bottom: 0.5rem;
+    width: 49.5px; /* 10% smaller */
+    height: 49.5px;
     cursor: pointer;
   }
 
-  .subtitle {
-    color: var(--dim);
-    font-size: 0.95rem;
-    margin-bottom: 2rem;
+  .header-right {
+    position: absolute;
+    right: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
   }
 
+  .hamburger {
+    width: 24px;
+    height: 24px;
+    fill: var(--highlight);
+  }
+
+  /* TIMELINE */
   .timeline {
     width: 100%;
     max-width: 500px;
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
+    margin-top: 50px; /* pushes posts down 100px from top */
+}
   }
 
   .dream {
@@ -98,6 +130,7 @@
     color: var(--highlight);
   }
 
+  /* POST BUTTON */
   .post-fab {
     position: fixed;
     bottom: 1.5rem;
@@ -118,6 +151,7 @@
     filter: brightness(1.1);
   }
 
+  /* LOADING OVERLAY */
   #loading-overlay {
     position: fixed;
     top: 0;
@@ -144,6 +178,7 @@
     to { transform: rotate(360deg); }
   }
 
+  /* POPUP */
   #popup {
     position: fixed;
     top: 20px;
@@ -155,11 +190,61 @@
     z-index: 3000;
     display: none;
   }
+
+  /* BOTTOM NAV BAR */
+  #bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 40px;
+    background: rgba(26, 26, 26, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.6);
+    z-index: 1500;
+  }
+
+  #bottom-bar svg {
+    fill: var(--highlight);
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    user-select: none;
+    transition: fill 0.2s ease;
+  }
+
+  #bottom-bar svg:hover {
+    fill: var(--heart);
+  }
 </style>
 </head>
 <body>
-  <img src="https://raw.githubusercontent.com/stardriftr/stardriftr.github.io/main/images/star_driftr_logo.png" alt="STAR DRIFTR Logo" class="logo" onclick="goHome()" />
-  <p class="subtitle">An anonymous timeline of dreams</p>
+  <header id="header">
+    <img
+      src="https://raw.githubusercontent.com/stardriftr/stardriftr.github.io/main/images/star_driftr_logo.png"
+      alt="STAR DRIFTR Logo"
+      class="logo"
+      onclick="goHome()"
+    />
+    <div
+      class="header-right"
+      onclick="toggleMenu()"
+      aria-label="Menu"
+      role="button"
+      tabindex="0"
+    >
+      <svg class="hamburger" viewBox="0 0 24 24" aria-hidden="true">
+        <rect y="4" width="24" height="2" rx="1"></rect>
+        <rect y="11" width="24" height="2" rx="1"></rect>
+        <rect y="18" width="24" height="2" rx="1"></rect>
+      </svg>
+    </div>
+  </header>
 
   <div id="loading-overlay">
     <div class="spinner"></div>
@@ -170,6 +255,19 @@
   <div id="popup"></div>
 
   <button class="post-fab" onclick="goToTop()">Post</button>
+
+  <!-- Bottom navigation bar -->
+  <nav id="bottom-bar" aria-label="Bottom navigation">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-label="Home" tabindex="0" onclick="void(0)">
+      <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+    </svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-label="Search" tabindex="0" onclick="void(0)">
+      <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16a6.471 6.471 0 004.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zM9.5 14A4.5 4.5 0 119.5 5a4.5 4.5 0 010 9z"/>
+    </svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-label="Profile" tabindex="0" onclick="void(0)">
+      <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/>
+    </svg>
+  </nav>
 
 <script>
   const API_URL = 'https://stardriftr-api.calembeaz.workers.dev/dreams';
@@ -206,71 +304,58 @@
             ${d.image ? `<img src="${d.image}" alt="Dream image" style="max-width:100%; margin-top:8px; border-radius: 6px;" />` : ''}
             <div class="body">${d.original}</div>
             <div class="actions">
-              <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z"/></svg>
-              <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.74 0 3.41 1.01 4.13 2.44h.74C13.09 5.01 14.76 4 16.5 4 19 4 21 6 21 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+              <svg viewBox="0 0 24 24" title="Like" tabindex="0"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
             </div>
           `;
           timeline.appendChild(div);
         });
-    } catch (err) {
-      console.error('Error loading timeline:', err);
-      showPopup(`Error loading timeline: ${err.message}`);
+    } catch (e) {
+      timeline.innerHTML = `<p style="color:#f44;">Error loading timeline: ${e.message}</p>`;
     } finally {
       loadingOverlay.style.display = 'none';
     }
   }
 
   function goHome() {
-    window.location.href = "index.html";
+    alert('Home clicked');
   }
 
   function goToTop() {
-    window.location.href = 'index.html';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function showPopup(msg) {
-    const popup = document.getElementById("popup");
-    popup.textContent = msg;
-    popup.style.display = "block";
-    setTimeout(() => popup.style.display = "none", 3000);
+  function toggleMenu() {
+    alert('Menu clicked');
   }
 
-  async function postPendingDream() {
-    const pendingDream = localStorage.getItem('pendingDream');
-    const uid = localStorage.getItem('uid');
+  // Scroll header show/hide logic
+  let lastScrollY = window.scrollY;
+  let ticking = false;
+  const header = document.getElementById('header');
 
-    if (!pendingDream || !uid) return;
+  function onScroll() {
+    const currentScrollY = window.scrollY;
 
-    showPopup("Posting your dream...");
-
-    try {
-      const res = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: pendingDream, uid: uid }),
-      });
-
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`HTTP ${res.status}: ${text}`);
-      }
-
-      localStorage.removeItem('pendingDream');
-      showPopup("Dream posted!");
-
-      // Reload timeline to include the new dream
-      await load();
-
-    } catch (err) {
-      console.error("Failed to post pending dream:", err);
-      showPopup("Failed to post dream");
+    if (currentScrollY < 10) {
+      header.classList.remove('hidden');
+    } else if (currentScrollY > lastScrollY) {
+      header.classList.add('hidden');
+    } else {
+      header.classList.remove('hidden');
     }
+    lastScrollY = currentScrollY;
+    ticking = false;
   }
 
-  window.addEventListener('load', async () => {
-    await load();          // Load timeline first
-    await postPendingDream();  // Then post dream
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      window.requestAnimationFrame(onScroll);
+      ticking = true;
+    }
   });
+
+  // Kick off initial load
+  load();
 </script>
 </body>
 </html>
