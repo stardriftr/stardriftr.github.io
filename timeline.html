@@ -38,14 +38,13 @@
     z-index: 1500;
     transition: transform 0.3s ease;
     margin-bottom: 40px;
-    /*box-shadow: 0 -2px 8px rgba(0,0,0,0.6);*/
   }
   header.hidden {
     transform: translateY(-100%);
   }
 
   .logo {
-    width: 40px; /* 10% smaller */
+    width: 40px;
     height: 40px;
     cursor: pointer;
   }
@@ -206,7 +205,6 @@
     align-items: center;
     justify-content: space-between;
     padding: 0 1.5rem;
-    /*box-shadow: 0 -2px 8px rgba(0,0,0,0.6);*/
     z-index: 1500;
   }
 
@@ -223,10 +221,38 @@
     fill: var(--heart);
   }
 
+  /* shimmer placeholder for images */
+  .shimmer-box {
+    position: relative;
+    background: #444;
+    overflow: hidden;
+  }
+
+  .shimmer-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 150%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,0.1) 50%,
+      rgba(255,255,255,0) 100%
+    );
+    animation: shimmer 2s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { left: -150%; }
+    100% { left: 150%; }
+  }
+
 </style>
 </head>
 <body>
-	<header id="header">
+  <header id="header">
     <img
       src="https://raw.githubusercontent.com/stardriftr/stardriftr.github.io/main/images/star_driftr_logo.png"
       alt="STAR DRIFTR Logo"
@@ -258,7 +284,6 @@
 
   <button class="post-fab" onclick="goToTop()">Post</button>
 
-  <!-- Bottom navigation bar -->
   <nav id="bottom-bar" aria-label="Bottom navigation">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-label="Home" tabindex="0" onclick="void(0)">
       <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
@@ -300,7 +325,6 @@
 
           const name = d.display_name?.trim() || fallbackAnon(i);
 
-          // Truncate dream text if over 200 chars
           let fullText = d.original;
           let isTruncated = fullText.length > 200;
           let displayText = isTruncated ? fullText.slice(0, 200) + '...' : fullText;
@@ -310,7 +334,13 @@
               <span><span class="emoji">${randomEmoji()}</span> <span class="username">${name}</span></span>
               <span>${new Date(Number(d.time)).toLocaleString()}</span>
             </div>
-            ${d.image ? `<img src="${d.image}" alt="Dream image" style="max-width:100%; margin-top:8px; border-radius: 6px;" />` : ''}
+            <div class="image-container">
+              ${
+                d.image
+                  ? `<div class="shimmer-box" style="width:100%; height:460px; border-radius:6px;"></div>`
+                  : ''
+              }
+            </div>
             <div class="body">
               ${displayText}
               ${
@@ -325,7 +355,18 @@
             </div>
           `;
 
-          // Add click event for toggling text
+          if (d.image) {
+            const container = div.querySelector('.image-container');
+            const img = new Image();
+            img.src = d.image;
+            img.style.maxWidth = '100%';
+            img.style.borderRadius = '6px';
+            img.onload = () => {
+              container.innerHTML = '';
+              container.appendChild(img);
+            };
+          }
+
           if (isTruncated) {
             const expandLink = div.querySelector('.expand-link');
             expandLink.addEventListener('click', () => {
@@ -350,17 +391,8 @@
     }
   }
 
-
-
-
-  function goHome() {
-    window.location.href = "index.html";
-  }
-
-  function goToTop() {
-    window.location.href = 'index.html';
-  }
-
+  function goHome() { window.location.href = "index.html"; }
+  function goToTop() { window.location.href = 'index.html'; }
   function showPopup(msg) {
     const popup = document.getElementById("popup");
     popup.textContent = msg;
@@ -369,42 +401,34 @@
   }
 
   async function postPendingDream() {
-  const pendingDream = localStorage.getItem('pendingDream');
-  const uid = localStorage.getItem('uid');
+    const pendingDream = localStorage.getItem('pendingDream');
+    const uid = localStorage.getItem('uid');
+    if (!pendingDream || !uid) return;
 
-  if (!pendingDream || !uid) return;
-
-  showPopup("Posting your dream...");
-
-  try {
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: pendingDream, uid: uid }),
-    });
-
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(`HTTP ${res.status}: ${text}`);
+    showPopup("Posting your dream...");
+    try {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: pendingDream, uid: uid }),
+      });
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`HTTP ${res.status}: ${text}`);
+      }
+      localStorage.removeItem('pendingDream');
+      showPopup("Dream posted!");
+    } catch (err) {
+      console.error("Failed to post pending dream:", err);
+      showPopup("Failed to post dream");
     }
-
-    localStorage.removeItem('pendingDream');
-    // Optional: you can remove uid here if you want, or keep for future posts
-    // localStorage.removeItem('uid');
-
-    showPopup("Dream posted!");
-  } catch (err) {
-    console.error("Failed to post pending dream:", err);
-    showPopup("Failed to post dream");
   }
-}
 
-window.addEventListener('load', async () => {
-  await postPendingDream();
-  await load();
-});
+  window.addEventListener('load', async () => {
+    await postPendingDream();
+    await load();
+  });
 
 </script>
 </body>
 </html>
-
