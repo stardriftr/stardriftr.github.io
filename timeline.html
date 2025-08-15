@@ -66,6 +66,7 @@
 
   async function load() {
     const loadingOverlay = document.getElementById('loading-overlay');
+    const currentUid = localStorage.getItem('uid');
     try {
       const res = await fetch(API_URL);
       if (!res.ok) throw new Error(`Failed to fetch timeline: ${res.status}`);
@@ -84,29 +85,24 @@
           let isTruncated = fullText.length > 200;
           let displayText = isTruncated ? fullText.slice(0, 200) + '...' : fullText;
 
+          // Determine if current user has liked this dream
+          const hasLiked = d.likes?.includes(currentUid) || false;
+
           div.innerHTML = `
             <div class="meta">
               <span><span class="emoji">${randomEmoji()}</span> <span class="username">${name}</span></span>
               <span>${new Date(Number(d.time)).toLocaleString()}</span>
             </div>
             <div class="image-container">
-              ${
-                d.image
-                  ? `<div class="shimmer-box" style="width:100%; height:460px; border-radius:6px;"></div>`
-                  : ''
-              }
+              ${ d.image ? `<div class="shimmer-box" style="width:100%; height:460px; border-radius:6px;"></div>` : '' }
             </div>
             <div class="body">
               ${displayText}
-              ${
-                isTruncated
-                  ? `<div class="expand-link" style="color:#5492a5; cursor:pointer; font-weight:bold; text-decoration:none; margin-top:4px;">Expand full dream</div>`
-                  : ''
-              }
+              ${ isTruncated ? `<div class="expand-link" style="color:#5492a5; cursor:pointer; font-weight:bold; text-decoration:none; margin-top:4px;">Expand full dream</div>` : '' }
             </div>
             <div class="actions">
               <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z"/></svg>
-              <svg class="like-icon" data-dream-id="${d.dream_id}" viewBox="0 0 24 24" style="cursor:pointer; fill: none; stroke:red; stroke-width:2;">
+              <svg class="like-icon" data-dream-id="${d.dream_id}" data-liked="${hasLiked}" viewBox="0 0 24 24" style="cursor:pointer; fill: ${hasLiked ? 'red' : 'none'}; stroke:red; stroke-width:2;">
                 <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 
                          2 6 4 4 6.5 4c1.74 0 3.41 1.01 4.13 2.44h.74
                          C13.09 5.01 14.76 4 16.5 4 19 4 21 6 21 8.5
@@ -143,20 +139,25 @@
 
           timeline.appendChild(div);
 
-          // 🔴 Like click: just send UID, no count
+          // 🔴 Like/unlike toggle
           const likeIcon = div.querySelector('.like-icon');
           likeIcon.addEventListener('click', async () => {
             const dreamId = likeIcon.dataset.dreamId;
+            const uid = currentUid;
+            if (!uid) return showPopup("You must be logged in to like");
+            const isLiked = likeIcon.dataset.liked === 'true';
+            const endpoint = isLiked ? 'unlike' : 'like';
             try {
-              await fetch(`${API_URL}/${dreamId}/like`, {
+              await fetch(`${API_URL}/${dreamId}/${endpoint}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ uid: localStorage.getItem('uid') })
+                body: JSON.stringify({ uid })
               });
-              likeIcon.style.fill = 'red';
+              likeIcon.dataset.liked = (!isLiked).toString();
+              likeIcon.style.fill = !isLiked ? 'red' : 'none';
             } catch (err) {
               console.error(err);
-              showPopup("Failed to like dream");
+              showPopup(`Failed to ${endpoint} dream`);
             }
           });
 
