@@ -331,3 +331,46 @@ textarea::placeholder {
     padding: 1rem;
   }
 }
+
+/* (optional) shimmer placeholder for loading images */
+.shimmer-box {
+  position: relative;
+  background: #444;
+  overflow: hidden;
+}
+.shimmer-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 150%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,0.1) 50%,
+    rgba(255,255,255,0) 100%
+  );
+  animation: shimmer 2s infinite;
+}
+@keyframes shimmer {
+  0% { left: -150%; }
+  100% { left: 150%; }
+}
+
+/* 🔵 Pulsating glow for the newest dream card */
+.pulsating-glow {
+  box-shadow: 0 0 15px rgba(0, 153, 255, 0.6), 0 0 30px rgba(0, 153, 255, 0.4);
+  animation: pulseGlow 2s infinite ease-in-out;
+}
+@keyframes pulseGlow {
+  0% {
+    box-shadow: 0 0 15px rgba(0, 153, 255, 0.6), 0 0 30px rgba(0, 153, 255, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(0, 153, 255, 0.9), 0 0 45px rgba(0, 153, 255, 0.7);
+  }
+  100% {
+    box-shadow: 0 0 15px rgba(0, 153, 255, 0.6), 0 0 30px rgba(0, 153, 255, 0.4);
+  }
+}
