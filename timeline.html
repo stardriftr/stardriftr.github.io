@@ -72,6 +72,7 @@
       if (!res.ok) throw new Error(`Failed to fetch timeline: ${res.status}`);
       const list = await res.json();
       timeline.innerHTML = '';
+
       list
         .sort((a, b) => Number(b.time) - Number(a.time))
         .forEach((d, i) => {
@@ -80,12 +81,11 @@
           div.className = 'dream';
 
           const name = d.display_name?.trim() || fallbackAnon(i);
-
           let fullText = d.original;
           let isTruncated = fullText.length > 200;
           let displayText = isTruncated ? fullText.slice(0, 200) + '...' : fullText;
 
-          // Determine if current user has liked this dream
+          // Has user liked this dream before?
           const hasLiked = d.likes?.includes(currentUid) || false;
 
           div.innerHTML = `
@@ -139,48 +139,44 @@
 
           timeline.appendChild(div);
 
-          // 🔴 Like/unlike toggle with optimistic UI
+          // Instant like toggle
           const likeIcon = div.querySelector('.like-icon');
           likeIcon.addEventListener('click', async () => {
             const dreamId = likeIcon.dataset.dreamId;
             const uid = currentUid;
             if (!uid) return showPopup("You must be logged in to like");
 
+            // Fill instantly
             const isLiked = likeIcon.dataset.liked === 'true';
-
-            // Optimistic UI: fill/unfill immediately
             likeIcon.dataset.liked = (!isLiked).toString();
             likeIcon.style.fill = !isLiked ? 'red' : 'none';
 
+            // Send to server
             const endpoint = isLiked ? 'unlike' : 'like';
             try {
-              const res = await fetch(`${API_URL}/${dreamId}/${endpoint}`, {
+              await fetch(`${API_URL}/${dreamId}/${endpoint}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ uid })
               });
-              if (!res.ok) throw new Error(`Server returned ${res.status}`);
             } catch (err) {
-              // Revert if server fails
+              console.error(err);
+              // Revert if failed
               likeIcon.dataset.liked = isLiked.toString();
               likeIcon.style.fill = isLiked ? 'red' : 'none';
-              console.error(err);
               showPopup(`Failed to ${endpoint} dream`);
             }
           });
-
         });
 
       const firstDream = timeline.querySelector('.dream');
-      if (firstDream) {
-        firstDream.classList.add('pulsating-glow');
-      }
+      if (firstDream) firstDream.classList.add('pulsating-glow');
 
     } catch (err) {
       console.error('Error loading timeline:', err);
       showPopup(`Error loading timeline: ${err.message}`);
     } finally {
-      document.getElementById('loading-overlay').style.display = 'none';
+      loadingOverlay.style.display = 'none';
     }
   }
 
@@ -203,12 +199,9 @@
       const res = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: pendingDream, uid: uid }),
+        body: JSON.stringify({ text: pendingDream, uid }),
       });
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`HTTP ${res.status}: ${text}`);
-      }
+      if (!res.ok) throw new Error(await res.text());
       localStorage.removeItem('pendingDream');
       showPopup("Dream posted!");
     } catch (err) {
