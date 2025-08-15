@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="https://stardriftr.github.io/style.css">
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Dream Timeline</title>
@@ -106,7 +106,12 @@
             </div>
             <div class="actions">
               <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z"/></svg>
-              <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.74 0 3.41 1.01 4.13 2.44h.74C13.09 5.01 14.76 4 16.5 4 19 4 21 6 21 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+              <svg class="like-icon" data-dream-id="${d.dream_id}" viewBox="0 0 24 24" style="cursor:pointer; fill: none; stroke:red; stroke-width:2;">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 
+                         2 6 4 4 6.5 4c1.74 0 3.41 1.01 4.13 2.44h.74
+                         C13.09 5.01 14.76 4 16.5 4 19 4 21 6 21 8.5
+                         c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+              </svg>
             </div>
           `;
 
@@ -137,14 +142,30 @@
           }
 
           timeline.appendChild(div);
+
+          // 🔴 Like click: just send UID, no count
+          const likeIcon = div.querySelector('.like-icon');
+          likeIcon.addEventListener('click', async () => {
+            const dreamId = likeIcon.dataset.dreamId;
+            try {
+              await fetch(`${API_URL}/${dreamId}/like`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ uid: localStorage.getItem('uid') })
+              });
+              likeIcon.style.fill = 'red';
+            } catch (err) {
+              console.error(err);
+              showPopup("Failed to like dream");
+            }
+          });
+
         });
 
-      // 🔵 Apply glow to the very first dream only
       const firstDream = timeline.querySelector('.dream');
       if (firstDream) {
         firstDream.classList.add('pulsating-glow');
       }
-      
 
     } catch (err) {
       console.error('Error loading timeline:', err);
@@ -191,11 +212,6 @@
     await postPendingDream();
     await load();
   });
-
 </script>
 </body>
 </html>
-
-
-
-
