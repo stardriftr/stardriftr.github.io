@@ -249,6 +249,24 @@
     100% { left: 150%; }
   }
 
+  /* 🔵 Pulsating glow for top dream */
+  .pulsating-glow {
+    box-shadow: 0 0 15px rgba(0, 153, 255, 0.6), 0 0 30px rgba(0, 153, 255, 0.4);
+    animation: pulseGlow 2s infinite ease-in-out;
+  }
+
+  @keyframes pulseGlow {
+    0% {
+      box-shadow: 0 0 15px rgba(0, 153, 255, 0.6), 0 0 30px rgba(0, 153, 255, 0.4);
+    }
+    50% {
+      box-shadow: 0 0 25px rgba(0, 153, 255, 0.9), 0 0 45px rgba(0, 153, 255, 0.7);
+    }
+    100% {
+      box-shadow: 0 0 15px rgba(0, 153, 255, 0.6), 0 0 30px rgba(0, 153, 255, 0.4);
+    }
+  }
+
 </style>
 </head>
 <body>
@@ -383,6 +401,12 @@
 
           timeline.appendChild(div);
         });
+
+      // 🔵 Apply glow to the very first dream only
+      if (timeline.firstChild) {
+        timeline.firstChild.classList.add('pulsating-glow');
+      }
+
     } catch (err) {
       console.error('Error loading timeline:', err);
       showPopup(`Error loading timeline: ${err.message}`);
