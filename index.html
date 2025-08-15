@@ -1,126 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="stylesheet" href="/style.css">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>STAR DRIFTR</title>
-  <style>
-    :root {
-      --bg: #0d0d0d;
-      --card: #1a1a1a;
-      --text: #f2f2f2;
-      --dim: #999;
-      --accent: #f9f5d7;
-      --button-post: #5492a5;
-      --button-post-disabled: #2f4f58;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      background-color: var(--bg);
-      color: var(--text);
-      font-family: system-ui, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 3rem 1rem;
-      min-height: 100vh;
-    }
-
-    .logo {
-      width: 55px;
-      height: 55px;
-      margin-bottom: 1rem;
-      cursor: pointer;
-    }
-
-    header p {
-      font-size: 0.9rem;
-      color: var(--dim);
-      margin-bottom: 2rem;
-    }
-
-    textarea {
-      background-color: var(--card);
-      color: var(--text);
-      border: none;
-      border-radius: 8px;
-      padding: 1rem;
-      width: 100%;
-      max-width: 400px;
-      height: 250px;
-      resize: none;
-      margin-bottom: 2rem;
-      font-size: 1rem;
-    }
-
-    textarea::placeholder {
-      color: var(--dim);
-    }
-
-    .buttons {
-      display: flex;
-      gap: 1rem;
-      width: 100%;
-      max-width: 400px;
-    }
-
-    .buttons a, .buttons button {
-      flex: 1;
-      text-align: center;
-      padding: 1rem;
-      border-radius: 8px;
-      font-weight: 500;
-      font-size: 1rem;
-      text-decoration: none;
-      border: none;
-      cursor: pointer;
-    }
-
-    .explore {
-      background: var(--accent);
-      color: #000;
-    }
-
-    .post {
-      background: var(--button-post);
-      color: #fff;
-    }
-
-    .post:disabled {
-      background: var(--button-post-disabled);
-      cursor: not-allowed;
-    }
-
-    .popup {
-      position: fixed;
-      top: 2rem;
-      background: #fff;
-      color: #000;
-      padding: 0.75rem 1.25rem;
-      border-radius: 8px;
-      font-weight: bold;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      z-index: 100;
-      display: none;
-    }
-
-    @media (max-width: 480px) {
-      textarea {
-        height: 200px;
-      }
-
-      .buttons a, .buttons button {
-        font-size: 0.95rem;
-        padding: 0.9rem;
-      }
-    }
-  </style>
 </head>
 <body>
   <img src="https://raw.githubusercontent.com/stardriftr/stardriftr.github.io/main/images/star_driftr_logo.png" alt="STAR DRIFTR Logo" class="logo" onclick="goHome()" />
@@ -169,3 +53,4 @@
   </script>
 </body>
 </html>
+
