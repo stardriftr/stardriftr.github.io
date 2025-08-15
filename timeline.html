@@ -139,23 +139,31 @@
 
           timeline.appendChild(div);
 
-          // 🔴 Like/unlike toggle
+          // 🔴 Like/unlike toggle with optimistic UI
           const likeIcon = div.querySelector('.like-icon');
           likeIcon.addEventListener('click', async () => {
             const dreamId = likeIcon.dataset.dreamId;
             const uid = currentUid;
             if (!uid) return showPopup("You must be logged in to like");
+
             const isLiked = likeIcon.dataset.liked === 'true';
+
+            // Optimistic UI: fill/unfill immediately
+            likeIcon.dataset.liked = (!isLiked).toString();
+            likeIcon.style.fill = !isLiked ? 'red' : 'none';
+
             const endpoint = isLiked ? 'unlike' : 'like';
             try {
-              await fetch(`${API_URL}/${dreamId}/${endpoint}`, {
+              const res = await fetch(`${API_URL}/${dreamId}/${endpoint}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ uid })
               });
-              likeIcon.dataset.liked = (!isLiked).toString();
-              likeIcon.style.fill = !isLiked ? 'red' : 'none';
+              if (!res.ok) throw new Error(`Server returned ${res.status}`);
             } catch (err) {
+              // Revert if server fails
+              likeIcon.dataset.liked = isLiked.toString();
+              likeIcon.style.fill = isLiked ? 'red' : 'none';
               console.error(err);
               showPopup(`Failed to ${endpoint} dream`);
             }
