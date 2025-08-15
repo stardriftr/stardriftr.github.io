@@ -72,7 +72,6 @@
       if (!res.ok) throw new Error(`Failed to fetch timeline: ${res.status}`);
       const list = await res.json();
       timeline.innerHTML = '';
-
       list
         .sort((a, b) => Number(b.time) - Number(a.time))
         .forEach((d, i) => {
@@ -81,12 +80,13 @@
           div.className = 'dream';
 
           const name = d.display_name?.trim() || fallbackAnon(i);
+
           let fullText = d.original;
           let isTruncated = fullText.length > 200;
           let displayText = isTruncated ? fullText.slice(0, 200) + '...' : fullText;
 
-          // Has user liked this dream before?
           const hasLiked = d.likes?.includes(currentUid) || false;
+          const likeCount = d.likes?.length || 0;
 
           div.innerHTML = `
             <div class="meta">
@@ -100,14 +100,17 @@
               ${displayText}
               ${ isTruncated ? `<div class="expand-link" style="color:#5492a5; cursor:pointer; font-weight:bold; text-decoration:none; margin-top:4px;">Expand full dream</div>` : '' }
             </div>
-            <div class="actions">
-              <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z"/></svg>
-              <svg class="like-icon" data-dream-id="${d.dream_id}" data-liked="${hasLiked}" viewBox="0 0 24 24" style="cursor:pointer; fill: ${hasLiked ? 'red' : 'none'}; stroke:red; stroke-width:2;">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 
-                         2 6 4 4 6.5 4c1.74 0 3.41 1.01 4.13 2.44h.74
-                         C13.09 5.01 14.76 4 16.5 4 19 4 21 6 21 8.5
-                         c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-              </svg>
+            <div class="actions" style="display:flex; align-items:center; gap:6px;">
+              <svg viewBox="0 0 24 24" style="stroke:#999; fill:none;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z"/></svg>
+              <div style="display:flex; align-items:center; gap:4px; cursor:pointer;">
+                <svg class="like-icon" data-dream-id="${d.dream_id}" data-liked="${hasLiked}" viewBox="0 0 24 24" style="fill:${hasLiked ? 'red' : 'none'}; stroke:${hasLiked ? 'red' : '#999'}; stroke-width:2;">
+                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 
+                           2 6 4 4 6.5 4c1.74 0 3.41 1.01 4.13 2.44h.74
+                           C13.09 5.01 14.76 4 16.5 4 19 4 21 6 21 8.5
+                           c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+                <span class="like-count">${likeCount > 0 ? likeCount : ''}</span>
+              </div>
             </div>
           `;
 
@@ -139,19 +142,20 @@
 
           timeline.appendChild(div);
 
-          // Instant like toggle
           const likeIcon = div.querySelector('.like-icon');
+          const likeCountSpan = div.querySelector('.like-count');
           likeIcon.addEventListener('click', async () => {
             const dreamId = likeIcon.dataset.dreamId;
             const uid = currentUid;
             if (!uid) return showPopup("You must be logged in to like");
 
-            // Fill instantly
             const isLiked = likeIcon.dataset.liked === 'true';
+            // instant fill toggle
             likeIcon.dataset.liked = (!isLiked).toString();
             likeIcon.style.fill = !isLiked ? 'red' : 'none';
-
-            // Send to server
+            likeIcon.style.stroke = !isLiked ? 'red' : '#999';
+            likeCountSpan.textContent = !isLiked ? (likeCount + 1) : (likeCount - 1 || '');
+            
             const endpoint = isLiked ? 'unlike' : 'like';
             try {
               await fetch(`${API_URL}/${dreamId}/${endpoint}`, {
@@ -161,10 +165,12 @@
               });
             } catch (err) {
               console.error(err);
-              // Revert if failed
+              showPopup(`Failed to ${endpoint} dream`);
+              // revert on error
               likeIcon.dataset.liked = isLiked.toString();
               likeIcon.style.fill = isLiked ? 'red' : 'none';
-              showPopup(`Failed to ${endpoint} dream`);
+              likeIcon.style.stroke = isLiked ? 'red' : '#999';
+              likeCountSpan.textContent = likeCount > 0 ? likeCount : '';
             }
           });
         });
@@ -176,7 +182,7 @@
       console.error('Error loading timeline:', err);
       showPopup(`Error loading timeline: ${err.message}`);
     } finally {
-      loadingOverlay.style.display = 'none';
+      document.getElementById('loading-overlay').style.display = 'none';
     }
   }
 
@@ -199,9 +205,12 @@
       const res = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: pendingDream, uid }),
+        body: JSON.stringify({ text: pendingDream, uid: uid }),
       });
-      if (!res.ok) throw new Error(await res.text());
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`HTTP ${res.status}: ${text}`);
+      }
       localStorage.removeItem('pendingDream');
       showPopup("Dream posted!");
     } catch (err) {
