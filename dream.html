@@ -201,14 +201,9 @@
     const text = input.value.trim();
     if (!text) return;
     if (!currentUid) return showPopup("You must be logged in to comment");
-
+  
     try {
-      // Step 1: fetch the user from KV to get display_name
-      const userRes = await fetch(`https://stardriftr-api.calembeaz.workers.dev/users/${currentUid}`);
-      const user = await userRes.json();
-      const displayName = user.display_name || user.username || "Anon";
-
-      // Step 2: post comment with resolved display_name
+      // Post comment using localStorage display name
       await fetch(`${API_URL}/${dreamId}/comment`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -218,8 +213,7 @@
           text
         })
       });
-
-
+  
       input.value = '';
       await loadComments(); // reload comments after posting
     } catch (err) {
@@ -227,6 +221,7 @@
       showPopup("Error posting comment");
     }
   }
+  
 
 
   function goHome() { window.location.href = "index.html"; }
@@ -238,4 +233,5 @@
 </script>
 </body>
 </html>
+
 
