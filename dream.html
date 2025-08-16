@@ -203,13 +203,15 @@
     if (!currentUid) return showPopup("You must be logged in to comment");
   
     try {
-      // Post comment using localStorage display name
+      // Use display_name from localStorage, fallback to username, then "Anon"
+      const displayName = localStorage.getItem('display_name') || localStorage.getItem('username') || "Anon";
+  
       await fetch(`${API_URL}/${dreamId}/comment`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           uid: currentUid,
-          display_name: currentDisplayName || "Anon",
+          display_name: displayName,
           text
         })
       });
@@ -222,6 +224,7 @@
     }
   }
   
+    
 
 
   function goHome() { window.location.href = "index.html"; }
@@ -233,5 +236,6 @@
 </script>
 </body>
 </html>
+
 
 
