@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="https://stardriftr.github.io/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dream</title>
+</head>
+<body>
+  <header id="header">
+    <img
+      src="https://raw.githubusercontent.com/stardriftr/stardriftr.github.io/main/images/star_driftr_logo.png"
+      alt="STAR DRIFTR Logo"
+      class="logo"
+      onclick="goHome()"
+    />
+    <div
+      class="header-right"
+      onclick="toggleMenu()"
+      aria-label="Menu"
+      role="button"
+      tabindex="0"
+    >
+      <svg class="hamburger" viewBox="0 0 24 24" aria-hidden="true">
+        <rect y="4" width="24" height="2" rx="1"></rect>
+        <rect y="11" width="24" height="2" rx="1"></rect>
+        <rect y="18" width="24" height="2" rx="1"></rect>
+      </svg>
+    </div>
+  </header>
+
+  <div id="loading-overlay">
+    <div class="spinner"></div>
+  </div>
+
+  <div class="timeline" id="dream-container"></div>
+
+  <div id="comments-section">
+    <h3>Comments</h3>
+    <div id="comments-list"></div>
+    <div id="comment-form">
+      <textarea id="comment-input" placeholder="Write a comment..."></textarea>
+      <button onclick="postComment()">Post</button>
+    </div>
+  </div>
+
+  <div id="popup"></div>
+
+  <nav id="bottom-bar" aria-label="Bottom navigation">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-label="Home" tabindex="0" onclick="goHome()">
+      <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+    </svg>
+  </nav>
+
+<script>
+  const API_URL = 'https://stardriftr-api.calembeaz.workers.dev/dreams';
+  const dreamContainer = document.getElementById('dream-container');
+  const commentsList = document.getElementById('comments-list');
+  const dreamId = new URLSearchParams(window.location.search).get('id');
+  const currentUid = localStorage.getItem('uid');
+
+  function randomEmoji() {
+    const emojis = ['😴', '🌌', '👁️', '🌀', '🌙', '🛌'];
+    return emojis[Math.floor(Math.random() * emojis.length)];
+  }
+
+  function fallbackAnon(i) {
+    return 'Anon-' + String(1000 + i);
+  }
+
+  function showPopup(msg) {
+    const popup = document.getElementById("popup");
+    popup.textContent = msg;
+    popup.style.display = "block";
+    setTimeout(() => popup.style.display = "none", 3000);
+  }
+
+  async function loadDream() {
+    try {
+      const res = await fetch(`${API_URL}/${dreamId}`);
+      if (!res.ok) throw new Error("Failed to fetch dream");
+      const d = await res.json();
+
+      dreamContainer.innerHTML = '';
+      const div = document.createElement('div');
+      div.className = 'dream';
+
+      const name = d.display_name?.trim() || fallbackAnon(1);
+      const hasLiked = d.likes?.includes(currentUid) || false;
+      const likeCount = d.likes?.length || 0;
+
+      div.innerHTML = `
+        <div class="meta">
+          <span><span class="emoji">${randomEmoji()}</span> <span class="username">${name}</span></span>
+          <span>${new Date(Number(d.time)).toLocaleString()}</span>
+        </div>
+        <div class="image-container">
+          ${ d.image ? `<div class="shimmer-box" style="width:100%; height:460px; border-radius:6px;"></div>` : '' }
+        </div>
+        <div class="body">${d.original}</div>
+        <div class="actions" style="display:flex; align-items:center; gap:6px;">
+          <div style="display:flex; align-items:center; gap:4px; cursor:pointer;">
+            <svg class="like-icon" data-dream-id="${d.dream_id}" data-liked="${hasLiked}" viewBox="0 0 24 24" style="fill:${hasLiked ? 'red' : 'none'}; stroke:${hasLiked ? 'red' : '#999'}; stroke-width:2;">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 
+                       2 6 4 4 6.5 4c1.74 0 3.41 1.01 4.13 2.44h.74
+                       C13.09 5.01 14.76 4 16.5 4 19 4 21 6 21 8.5
+                       c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+            <span class="like-count">${likeCount > 0 ? likeCount : ''}</span>
+          </div>
+        </div>
+      `;
+
+      if (d.image) {
+        const container = div.querySelector('.image-container');
+        const img = new Image();
+        img.src = d.image;
+        img.style.maxWidth = '100%';
+        img.style.borderRadius = '6px';
+        img.onload = () => {
+          container.innerHTML = '';
+          container.appendChild(img);
+        };
+      }
+
+      dreamContainer.appendChild(div);
+
+      // like handling
+      const likeIcon = div.querySelector('.like-icon');
+      const likeCountSpan = div.querySelector('.like-count');
+      likeIcon.addEventListener('click', async () => {
+        if (!currentUid) return showPopup("You must be logged in to like");
+
+        const isLiked = likeIcon.dataset.liked === 'true';
+        likeIcon.dataset.liked = (!isLiked).toString();
+        likeIcon.style.fill = !isLiked ? 'red' : 'none';
+        likeIcon.style.stroke = !isLiked ? 'red' : '#999';
+        let newCount = parseInt(likeCountSpan.textContent || '0');
+        newCount = isLiked ? newCount - 1 : newCount + 1;
+        likeCountSpan.textContent = newCount > 0 ? newCount : '';
+
+        const endpoint = isLiked ? 'unlike' : 'like';
+        try {
+          await fetch(`${API_URL}/${dreamId}/${endpoint}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ uid: currentUid })
+          });
+        } catch (err) {
+          console.error(err);
+          showPopup(`Failed to ${endpoint} dream`);
+        }
+      });
+
+    } finally {
+      document.getElementById('loading-overlay').style.display = 'none';
+    }
+  }
+
+  async function loadComments() {
+    try {
+      const res = await fetch(`${API_URL}/${dreamId}/comments`);
+      if (!res.ok) throw new Error("Failed to fetch comments");
+      const comments = await res.json();
+
+      commentsList.innerHTML = '';
+      comments.forEach((c, i) => {
+        const div = document.createElement('div');
+        div.className = 'comment';
+        const name = c.display_name?.trim() || fallbackAnon(i);
+        div.innerHTML = `
+          <div class="comment-meta"><strong>${name}</strong> • ${new Date(Number(c.time)).toLocaleString()}</div>
+          <div class="comment-body">${c.text}</div>
+        `;
+        commentsList.appendChild(div);
+      });
+    } catch (err) {
+      console.error(err);
+      showPopup("Error loading comments");
+    }
+  }
+
+  async function postComment() {
+    const input = document.getElementById('comment-input');
+    const text = input.value.trim();
+    if (!text) return;
+    if (!currentUid) return showPopup("You must be logged in to comment");
+
+    try {
+      const res = await fetch(`${API_URL}/${dreamId}/comment`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid: currentUid, text })
+      });
+      if (!res.ok) throw new Error("Failed to post comment");
+      input.value = '';
+      await loadComments();
+    } catch (err) {
+      console.error(err);
+      showPopup("Error posting comment");
+    }
+  }
+
+  function goHome() { window.location.href = "index.html"; }
+
+  window.addEventListener('load', async () => {
+    await loadDream();
+    await loadComments();
+  });
+</script>
+</body>
+</html>
