@@ -214,10 +214,11 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           uid: currentUid,
-          display_name: displayName, // ✅ include display name here
+          display_name: currentDisplayName || "Anon",
           text
         })
       });
+
 
       input.value = '';
       await loadComments(); // reload comments after posting
@@ -237,3 +238,4 @@
 </script>
 </body>
 </html>
+
