@@ -58,14 +58,12 @@
   const commentsList = document.getElementById('comments-list');
   const dreamId = new URLSearchParams(window.location.search).get('id');
   const currentUid = localStorage.getItem('uid');
+  const currentUsername = localStorage.getItem('username');
+  const currentDisplayName = localStorage.getItem('display_name');
 
   function randomEmoji() {
     const emojis = ['😴', '🌌', '👁️', '🌀', '🌙', '🛌'];
     return emojis[Math.floor(Math.random() * emojis.length)];
-  }
-
-  function fallbackAnon(i) {
-    return 'Anon-' + String(1000 + i);
   }
 
   function showPopup(msg) {
@@ -85,7 +83,7 @@
       const div = document.createElement('div');
       div.className = 'dream';
 
-      const name = d.display_name?.trim() || fallbackAnon(1);
+      const name = d.display_name?.trim() || currentDisplayName || "Anon";
       const hasLiked = d.likes?.includes(currentUid) || false;
       const likeCount = d.likes?.length || 0;
 
@@ -164,12 +162,13 @@
       const comments = await res.json();
 
       commentsList.innerHTML = '';
-      comments.forEach((c, i) => {
+      comments.sort((a,b)=>a.ts-b.ts); // oldest first
+      comments.forEach((c) => {
         const div = document.createElement('div');
         div.className = 'comment';
-        const name = c.display_name?.trim() || fallbackAnon(i);
+        const name = c.display_name?.trim() || c.username || "Anon";
         div.innerHTML = `
-          <div class="comment-meta"><strong>${name}</strong> • ${new Date(Number(c.time)).toLocaleString()}</div>
+          <div class="comment-meta"><strong>${name}</strong> • ${new Date(Number(c.ts)).toLocaleString()}</div>
           <div class="comment-body">${c.text}</div>
         `;
         commentsList.appendChild(div);
@@ -187,12 +186,16 @@
     if (!currentUid) return showPopup("You must be logged in to comment");
 
     try {
-      const res = await fetch(`${API_URL}/${dreamId}/comment`, {
+      await fetch(`${API_URL}/${dreamId}/comment`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uid: currentUid, text })
+        body: JSON.stringify({
+          uid: currentUid,
+          text,
+          username: currentUsername,
+          display_name: currentDisplayName
+        })
       });
-      if (!res.ok) throw new Error("Failed to post comment");
       input.value = '';
       await loadComments();
     } catch (err) {
