@@ -100,8 +100,7 @@
               ${displayText}
               ${ isTruncated ? `<div class="expand-link" style="color:#5492a5; cursor:pointer; font-weight:bold; text-decoration:none; margin-top:4px;">Expand full dream</div>` : '' }
             </div>
-            <div class="actions" style="display:flex; align-items:center; gap:6px;">
-              <svg viewBox="0 0 24 24" style="stroke:#999; fill:none;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z"/></svg>
+            <div class="actions" style="display:flex; align-items:center; gap:12px;">
               <div style="display:flex; align-items:center; gap:4px; cursor:pointer;">
                 <svg class="like-icon" data-dream-id="${d.dream_id}" data-liked="${hasLiked}" viewBox="0 0 24 24" style="fill:${hasLiked ? 'red' : 'none'}; stroke:${hasLiked ? 'red' : '#999'}; stroke-width:2;">
                   <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 
@@ -111,7 +110,17 @@
                 </svg>
                 <span class="like-count">${likeCount > 0 ? likeCount : ''}</span>
               </div>
+
+              <div style="display:flex; align-items:center; gap:4px; cursor:pointer;" onclick="window.location.href='dream.html?id=${d.dream_id}'">
+                <svg viewBox="0 0 24 24" style="stroke:#999; fill:none;">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z"/>
+                </svg>
+                <span class="comment-count">${d.comment_count > 0 ? d.comment_count : ''}</span>
+              </div>
+
             </div>
+
+
           `;
 
           if (d.image) {
