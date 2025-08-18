@@ -98,7 +98,13 @@
 
           div.innerHTML = `
             <div class="meta">
-              <span><span class="emoji">${randomEmoji()}</span> <span class="username">${name}</span></span>
+              <span>
+                <span class="emoji">${randomEmoji()}</span> 
+                <a href="/user.html?username=${d.username}" class="username" style="color:inherit; text-decoration:none; font-weight:bold; cursor:pointer;">
+                  ${name}
+                </a>
+              </span>
+
               <span>${new Date(Number(d.time)).toLocaleString()}</span>
             </div>
             <div class="image-container">
@@ -243,4 +249,3 @@
 </script>
 </body>
 </html>
-
