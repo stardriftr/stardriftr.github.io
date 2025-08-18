@@ -190,13 +190,14 @@
         div.innerHTML = `
           <div class="comment-meta" style="font-size:14px; color:#ccc; margin-bottom:4px;">
             ${emoji} 
-            <a href="/user.html?username=${c.username}" class="username">
+            <a href="/user.html?username=${c.username}" style="text-decoration:none; color:inherit;">
               ${name}
             </a>
             <span style="font-size:12px; color:#888;">${ts}</span>
           </div>
           <div class="comment-body" style="font-size:14px; color:#eee;">${c.text}</div>
         `;
+
 
         commentsList.appendChild(div);
       });
@@ -247,5 +248,6 @@
 </script>
 </body>
 </html>
+
 
 
