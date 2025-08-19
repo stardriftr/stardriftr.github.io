@@ -173,15 +173,14 @@
 
           timeline.appendChild(div);
 
-          // Options button popup (with Delete Post for dream owner)
-          const optionsBtn = div.querySelector('.options-btn');
+          // ---------- OPTIONS BUTTON POPUP ----------
+          const optionsBtn = div.querySelector('.options-btn'); // <-- FIXED
           optionsBtn.addEventListener('click', () => {
             const popup = document.getElementById('popup');
             const currentUid = localStorage.getItem('uid');
 
             let buttonsHtml = `<button style="padding:10px 16px; font-size:16px; cursor:pointer;">Report Post</button>`;
 
-            // If the current user owns this dream, add Delete Post button
             if (currentUid && currentUid === d.uid) {
               buttonsHtml += `<button style="padding:10px 16px; font-size:16px; cursor:pointer; margin-top:8px;" onclick="deleteDream('${d.dream_id}')">Delete Post</button>`;
             }
@@ -198,7 +197,6 @@
               popup.style.display = 'none';
             });
           });
-
 
           const likeIcon = div.querySelector('.like-icon');
           const likeCountSpan = div.querySelector('.like-count');
@@ -289,14 +287,13 @@
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       showPopup("Dream deleted!");
-      await load(); // reload timeline
+      await load();
       document.getElementById('popup').style.display = 'none';
     } catch (err) {
       console.error("Failed to delete dream:", err);
       showPopup("Failed to delete dream");
     }
   }
-
 
   window.addEventListener('load', async () => {
     await postPendingDream();
