@@ -72,6 +72,26 @@ function showPopup(msg) {
 function goHome() { window.location.href = "index.html"; }
 function goToTop() { window.location.href = 'index.html'; }
 
+async function fetchDreamWithLikes(dreamId, i) {
+  try {
+    const res = await fetch(`${API_URL}/dreams/${dreamId}`);
+    if (!res.ok) return null;
+    const d = await res.json();
+
+    const likeCountRes = await fetch(`${API_URL}/dreams/${dreamId}:like_count`);
+    let likeCount = 0;
+    if (likeCountRes.ok) {
+      const countText = await likeCountRes.text();
+      likeCount = Number(countText) || 0;
+    }
+    d.like_count = likeCount;
+    return d;
+  } catch(e) { 
+    console.error(`Failed to fetch dream ${dreamId}:`, e); 
+    return null; 
+  }
+}
+
 async function loadUserProfile() {
   const loadingOverlay = document.getElementById('loading-overlay');
   const currentUid = localStorage.getItem('uid');
@@ -85,26 +105,15 @@ async function loadUserProfile() {
     if (!profileRes.ok) throw new Error(`Profile not found: ${profileRes.status}`);
     const profile = await profileRes.json();
 
-    // Fetch dreams and like counts
-    const dreams = await Promise.all(profile.dreams.map(async (dreamId, i) => {
-      try {
-        const res = await fetch(`${API_URL}/dreams/${dreamId}`);
-        if (!res.ok) return null;
-        const d = await res.json();
-        const likeCountRes = await fetch(`${API_URL}/dreams/${dreamId}:like_count`);
-        let likeCount = 0;
-        if (likeCountRes.ok) {
-          const countText = await likeCountRes.text();
-          likeCount = Number(countText) || 0;
-        }
-        d.like_count = likeCount;
-        return d;
-      } catch(e) { console.error(`Failed to fetch dream ${dreamId}:`, e); return null; }
-    }));
+    // Fetch user's posted dreams
+    const dreams = await Promise.all(profile.dreams.map((dreamId, i) => fetchDreamWithLikes(dreamId, i)));
+
+    // Fetch user's liked dreams
+    const likedDreams = profile.liked_dreams ? await Promise.all(profile.liked_dreams.map((dreamId, i) => fetchDreamWithLikes(dreamId, i))) : [];
 
     // Map all dreams for easy lookup
     const allDreamsMap = {};
-    dreams.filter(Boolean).forEach(d => { allDreamsMap[d.dream_id] = d; });
+    [...dreams, ...likedDreams].filter(Boolean).forEach(d => { allDreamsMap[d.dream_id] = d; });
 
     // Add profile header
     const profileHeader = document.createElement('div');
@@ -244,11 +253,35 @@ async function loadUserProfile() {
       renderDreams(profile.dreams);
     });
 
-    likesTab.addEventListener('click', () => {
+    likesTab.addEventListener('click', async () => {
       likesTab.style.borderBottom = '2px solid #5492a5';
       postsTab.style.borderBottom = 'none';
-      renderDreams(profile.liked_dreams || []);
+      timeline.innerHTML = '';
+
+      if (!profile.liked_dreams || profile.liked_dreams.length === 0) {
+        timeline.innerHTML = '<p style="color:#aaa;">No liked dreams yet.</p>';
+        return;
+      }
+
+      // Fetch liked dreams and add them to allDreamsMap
+      for (const dreamId of profile.liked_dreams) {
+        if (!allDreamsMap[dreamId]) {
+          const res = await fetch(`${API_URL}/dreams/${dreamId}`);
+          if (res.ok) {
+            const dream = await res.json();
+
+            const likeCountRes = await fetch(`${API_URL}/dreams/${dreamId}:like_count`);
+            dream.like_count = likeCountRes.ok ? Number(await likeCountRes.text()) || 0 : 0;
+
+            allDreamsMap[dreamId] = dream;
+          }
+        }
+      }
+
+      // Now render using IDs, as renderDreams expects
+      renderDreams(profile.liked_dreams);
     });
+
 
   } catch (err) {
     console.error('Error loading user profile:', err);
