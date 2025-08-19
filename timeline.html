@@ -35,7 +35,7 @@
 
   <div class="timeline" id="timeline"></div>
 
-  <div id="popup"></div>
+  <div id="popup" style="display: none;"></div>
 
   <button class="post-fab" onclick="goToTop()">Post</button>
 
@@ -97,7 +97,7 @@
           const likeCount = d.likes?.length || 0;
 
           div.innerHTML = `
-            <div class="meta">
+            <div class="meta" style="display:flex; justify-content:space-between; align-items:center;">
               <span>
                 <span class="emoji">${randomEmoji()}</span> 
                 <a href="/user.html?username=${d.username}" class="username" style="color:inherit; text-decoration:none; font-weight:bold; cursor:pointer;">
@@ -105,15 +105,25 @@
                 </a>
               </span>
 
-              <span>${new Date(Number(d.time)).toLocaleString()}</span>
+              <span style="display:flex; align-items:center; gap:8px;">
+                <span>${new Date(Number(d.time)).toLocaleString()}</span>
+                <svg class="options-btn" viewBox="0 0 24 24" style="width:20px;height:20px;cursor:pointer;">
+                  <circle cx="5" cy="12" r="2"/>
+                  <circle cx="12" cy="12" r="2"/>
+                  <circle cx="19" cy="12" r="2"/>
+                </svg>
+              </span>
             </div>
+
             <div class="image-container">
               ${ d.image ? `<div class="shimmer-box" style="width:100%; height:460px; border-radius:6px;"></div>` : '' }
             </div>
+
             <div class="body">
               ${displayText}
               ${ isTruncated ? `<div class="expand-link" style="color:#5492a5; cursor:pointer; font-weight:bold; text-decoration:none; margin-top:4px;">Expand full dream</div>` : '' }
             </div>
+
             <div class="actions" style="display:flex; align-items:center; gap:12px;">
               <div style="display:flex; align-items:center; gap:4px; cursor:pointer;">
                 <svg class="like-icon" data-dream-id="${d.dream_id}" data-liked="${hasLiked}" viewBox="0 0 24 24" style="fill:${hasLiked ? 'red' : 'none'}; stroke:${hasLiked ? 'red' : '#999'}; stroke-width:2;">
@@ -133,8 +143,6 @@
               </div>
 
             </div>
-
-
           `;
 
           if (d.image) {
@@ -165,6 +173,33 @@
 
           timeline.appendChild(div);
 
+          // Options button popup (with Delete Post for dream owner)
+          const optionsBtn = div.querySelector('.options-btn');
+          optionsBtn.addEventListener('click', () => {
+            const popup = document.getElementById('popup');
+            const currentUid = localStorage.getItem('uid');
+
+            let buttonsHtml = `<button style="padding:10px 16px; font-size:16px; cursor:pointer;">Report Post</button>`;
+
+            // If the current user owns this dream, add Delete Post button
+            if (currentUid && currentUid === d.uid) {
+              buttonsHtml += `<button style="padding:10px 16px; font-size:16px; cursor:pointer; margin-top:8px;" onclick="deleteDream('${d.dream_id}')">Delete Post</button>`;
+            }
+
+            popup.innerHTML = `
+              <div class="modal-content">
+                <div class="close-btn">&times;</div>
+                ${buttonsHtml}
+              </div>
+            `;
+            popup.style.display = 'flex';
+
+            popup.querySelector('.close-btn').addEventListener('click', () => {
+              popup.style.display = 'none';
+            });
+          });
+
+
           const likeIcon = div.querySelector('.like-icon');
           const likeCountSpan = div.querySelector('.like-count');
           likeIcon.addEventListener('click', async () => {
@@ -173,7 +208,6 @@
             if (!uid) return showPopup("You must be logged in to like");
 
             const isLiked = likeIcon.dataset.liked === 'true';
-            // instant fill toggle
             likeIcon.dataset.liked = (!isLiked).toString();
             likeIcon.style.fill = !isLiked ? 'red' : 'none';
             likeIcon.style.stroke = !isLiked ? 'red' : '#999';
@@ -189,7 +223,6 @@
             } catch (err) {
               console.error(err);
               showPopup(`Failed to ${endpoint} dream`);
-              // revert on error
               likeIcon.dataset.liked = isLiked.toString();
               likeIcon.style.fill = isLiked ? 'red' : 'none';
               likeIcon.style.stroke = isLiked ? 'red' : '#999';
@@ -241,6 +274,29 @@
       showPopup("Failed to post dream");
     }
   }
+
+  async function deleteDream(dreamId) {
+    const uid = localStorage.getItem('uid');
+    if (!uid) return showPopup("You must be logged in to delete a dream");
+
+    if (!confirm("Are you sure you want to delete this dream?")) return;
+
+    try {
+      const res = await fetch(`${API_URL}/${dreamId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid })
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      showPopup("Dream deleted!");
+      await load(); // reload timeline
+      document.getElementById('popup').style.display = 'none';
+    } catch (err) {
+      console.error("Failed to delete dream:", err);
+      showPopup("Failed to delete dream");
+    }
+  }
+
 
   window.addEventListener('load', async () => {
     await postPendingDream();
