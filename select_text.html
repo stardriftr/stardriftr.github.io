@@ -27,17 +27,6 @@
       font: 16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans";
     }
 
-    .tutorial {
-      width: min(820px, 90vw);
-      margin-bottom: 20px;
-      padding: 18px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 12px;
-      font-size: 17px;
-      line-height: 1.5;
-      color: var(--muted);
-    }
-
     .box {
       width: min(820px, 90vw);
       background: linear-gradient(180deg, #191c23, var(--box));
@@ -47,6 +36,7 @@
         0 12px 30px rgba(0,0,0,0.45),
         inset 0 1px 0 rgba(255,255,255,0.03);
       border: 1px solid rgba(255,255,255,0.06);
+      margin-top: 15px;
     }
 
     .box h1 {
@@ -121,7 +111,6 @@
 
   <div id="selection">Click another word to complete selection, or leave blank.</div>
 
-  <!-- New buttons -->
   <div class="buttons">
     <button class="back-btn" id="backBtn">Go Back</button>
     <button class="complete-btn" id="completeBtn">Complete Post</button>
@@ -164,9 +153,7 @@
     });
 
     function highlightSelection() {
-      document.querySelectorAll(".word").forEach((span) => {
-        span.classList.remove("highlight");
-      });
+      document.querySelectorAll(".word").forEach((span) => span.classList.remove("highlight"));
 
       if (startIndex !== null && endIndex === null) {
         document.querySelector(`[data-index="${startIndex}"]`).classList.add("highlight");
@@ -195,12 +182,10 @@
     document.getElementById("completeBtn").addEventListener("click", () => {
       const selectedText = (startIndex !== null && endIndex !== null) 
         ? words.slice(Math.min(startIndex, endIndex), Math.max(startIndex, endIndex) + 1).join(" ")
-        : text; // fallback to full dream if no selection
+        : text;
 
       localStorage.setItem("selectedDreamText", selectedText);
-
-      // Continue to AI image generation or timeline
-      window.location.href = "timeline.html"; 
+      window.location.href = "timeline.html";
     });
   </script>
 </body>
