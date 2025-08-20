@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sandcastle Story - Selectable</title>
+  <style>
+    :root {
+      --bg: #0e0f12;
+      --box: #16181d;
+      --text: #e8e9ed;
+      --muted: #a7adbb;
+      --ring: #3a82f6;
+      --highlight: #3a82f6;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 30px 15px;
+      background: radial-gradient(1200px 800px at 70% 10%, #151821 0%, var(--bg) 55%);
+      color: var(--text);
+      font: 16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans";
+    }
+
+    .tutorial {
+      width: min(820px, 90vw);
+      margin-bottom: 20px;
+      padding: 18px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      font-size: 17px;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+    .box {
+      width: min(820px, 90vw);
+      background: linear-gradient(180deg, #191c23, var(--box));
+      padding: clamp(18px, 3.5vw, 28px);
+      border-radius: 18px;
+      box-shadow:
+        0 12px 30px rgba(0,0,0,0.45),
+        inset 0 1px 0 rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .box h1 {
+      margin: 0 0 10px;
+      font-size: clamp(20px, 3.6vw, 28px);
+    }
+
+    .word {
+      cursor: pointer;
+      padding: 2px 3px;
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+
+    .word:hover {
+      background: rgba(255,255,255,0.08);
+    }
+
+    .highlight {
+      background: var(--highlight);
+      color: white;
+    }
+
+    #selection {
+      margin-top: 20px;
+      padding: 14px;
+      width: min(820px, 90vw);
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--muted);
+      min-height: 40px;
+    }
+
+    .buttons {
+      margin-top: 20px;
+      display: flex;
+      gap: 1rem;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .buttons button {
+      flex: 1;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 1rem;
+    }
+
+    .back-btn {
+      background: var(--muted);
+      color: var(--text);
+    }
+
+    .complete-btn {
+      background: var(--highlight);
+      color: black;
+    }
+  </style>
+</head>
+<body>
+  <p>Choose the key part of your dream to turn into an AI image.</p>
+
+  <main class="box">
+    <h1>Refine your AI Dream image</h1>
+    <p id="paragraph"></p>
+  </main>
+
+  <div id="selection">Click another word to complete selection, or leave blank.</div>
+
+  <!-- New buttons -->
+  <div class="buttons">
+    <button class="back-btn" id="backBtn">Go Back</button>
+    <button class="complete-btn" id="completeBtn">Complete Post</button>
+  </div>
+
+  <script>
+    const text = localStorage.getItem('pendingDream') || "No dream found. Go back and enter a dream first.";
+    const paragraph = document.getElementById("paragraph");
+    const selectionBox = document.getElementById("selection");
+
+    const words = text.split(" ");
+    words.forEach((word, index) => {
+      const span = document.createElement("span");
+      span.textContent = word + " ";
+      span.className = "word";
+      span.dataset.index = index;
+      paragraph.appendChild(span);
+    });
+
+    let startIndex = null;
+    let endIndex = null;
+
+    paragraph.addEventListener("click", (e) => {
+      if (!e.target.classList.contains("word")) return;
+      const index = parseInt(e.target.dataset.index);
+
+      if (startIndex === null) {
+        startIndex = index;
+        highlightSelection();
+      } else if (endIndex === null) {
+        endIndex = index;
+        highlightSelection();
+        showSelection();
+      } else {
+        startIndex = index;
+        endIndex = null;
+        highlightSelection();
+        selectionBox.textContent = "Click another word to complete selection, or leave blank.";
+      }
+    });
+
+    function highlightSelection() {
+      document.querySelectorAll(".word").forEach((span) => {
+        span.classList.remove("highlight");
+      });
+
+      if (startIndex !== null && endIndex === null) {
+        document.querySelector(`[data-index="${startIndex}"]`).classList.add("highlight");
+      }
+
+      if (startIndex !== null && endIndex !== null) {
+        const [from, to] = [startIndex, endIndex].sort((a, b) => a - b);
+        for (let i = from; i <= to; i++) {
+          document.querySelector(`[data-index="${i}"]`).classList.add("highlight");
+        }
+      }
+    }
+
+    function showSelection() {
+      const [from, to] = [startIndex, endIndex].sort((a, b) => a - b);
+      const selectedWords = words.slice(from, to + 1).join(" ");
+      selectionBox.textContent = selectedWords;
+    }
+
+    // Go Back button
+    document.getElementById("backBtn").addEventListener("click", () => {
+      window.location.href = "index.html";
+    });
+
+    // Complete Post button
+    document.getElementById("completeBtn").addEventListener("click", () => {
+      const selectedText = (startIndex !== null && endIndex !== null) 
+        ? words.slice(Math.min(startIndex, endIndex), Math.max(startIndex, endIndex) + 1).join(" ")
+        : text; // fallback to full dream if no selection
+
+      localStorage.setItem("selectedDreamText", selectedText);
+
+      // Continue to AI image generation or timeline
+      window.location.href = "timeline.html"; 
+    });
+  </script>
+</body>
+</html>
