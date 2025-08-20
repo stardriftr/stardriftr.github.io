@@ -73,7 +73,7 @@
             body: JSON.stringify({
               uid: user.uid,
               text: selectedDream,
-              generateImage: generateImage
+              generateImage: !!generateImage   // ensures boolean true/false
             }),
           });
           if (!dreamRes.ok) throw new Error(`Failed to post dream: ${dreamRes.status}`);
@@ -117,4 +117,3 @@
   </script>
 </body>
 </html>
-
