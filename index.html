@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="https://stardriftr.github.io/style.css">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>STAR DRIFTR</title>
@@ -14,6 +14,15 @@
 
   <textarea id="dreamInput" placeholder="Describe what happened in your dream..."></textarea>
 
+  <!-- NEW slider option -->
+  <div class="generate-option">
+    <span>Generate Image from your Dream</span>
+    <label class="switch">
+      <input type="checkbox" id="generateImage" checked />
+      <span class="slider round"></span>
+    </label>
+  </div>
+
   <div class="buttons">
     <a href="timeline.html" class="explore">Explore</a>
     <button id="postBtn" class="post" disabled>Post</button>
@@ -25,6 +34,7 @@
     const textarea = document.getElementById('dreamInput');
     const postBtn = document.getElementById('postBtn');
     const popup = document.getElementById('popup');
+    const generateImage = document.getElementById('generateImage');
 
     textarea.addEventListener('input', () => {
       postBtn.disabled = textarea.value.trim() === '';
@@ -34,16 +44,21 @@
       const text = textarea.value.trim();
       if (!text) return;
 
-      // Save dream text locally for later posting
+      // Save dream text + toggle state
       localStorage.setItem('pendingDream', text);
+      localStorage.setItem('generateImage', generateImage.checked);
 
       // Show popup briefly
       popup.style.display = 'block';
 
       setTimeout(() => {
         popup.style.display = 'none';
-        // Redirect to login (timeline will post dream after login)
-        window.location.href = 'login.html';
+        // Redirect based on slider
+        if (generateImage.checked) {
+          window.location.href = 'select_text.html';
+        } else {
+          window.location.href = 'login.html';
+        }
       }, 1000);
     });
 
@@ -53,4 +68,3 @@
   </script>
 </body>
 </html>
-
