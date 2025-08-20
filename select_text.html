@@ -185,8 +185,11 @@
         : text;
 
       localStorage.setItem("selectedDreamText", selectedText);
-      window.location.href = "timeline.html";
+
+      // Redirect to login page instead of timeline for posting
+      window.location.href = "login.html"; 
     });
+
   </script>
 </body>
 </html>
