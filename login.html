@@ -69,7 +69,8 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               uid: user.uid,
-              text: selectedDream
+              text: selectedDream,
+              generateImage: true // new flag to generate image
             }),
           });
           if (!dreamRes.ok) throw new Error(`Failed to post dream: ${dreamRes.status}`);
