@@ -46,6 +46,7 @@
 
       // Save dream text + toggle state
       localStorage.setItem('pendingDream', text);
+      localStorage.setItem('selectedDreamText', text); // <-- add this line
       localStorage.setItem('generateImage', generateImage.checked);
 
       // Show popup briefly
@@ -61,6 +62,7 @@
         }
       }, 1000);
     });
+
 
     function goHome() {
       window.location.href = "index.html";
