@@ -174,29 +174,32 @@
           timeline.appendChild(div);
 
           // ---------- OPTIONS BUTTON POPUP ----------
-          optionsBtn.addEventListener('click', () => {
-            const popup = document.getElementById('popup');
-            const currentUid = localStorage.getItem('uid');
+          const optionsBtn = div.querySelector('.options-btn');
+          if (optionsBtn) {
+            optionsBtn.addEventListener('click', () => {
+              const popup = document.getElementById('popup');
+              const currentUid = localStorage.getItem('uid');
 
-            let buttonsHtml = `<button style="padding:10px 16px; font-size:16px; cursor:pointer;">Report Post</button>`;
+              let buttonsHtml = `<button style="padding:10px 16px; font-size:16px; cursor:pointer;">Report Post</button>`;
 
-            // Add Delete Post button if current user owns this dream
-            if (currentUid && currentUid === d.uid) {
-              buttonsHtml += `<button style="padding:10px 16px; font-size:16px; cursor:pointer; margin-top:8px;" onclick="deleteDream('${d.dream_id}')">Delete Post</button>`;
-            }
+              if (currentUid && currentUid === d.uid) {
+                buttonsHtml += `<button style="padding:10px 16px; font-size:16px; cursor:pointer; margin-top:8px;" onclick="deleteDream('${d.dream_id}')">Delete Post</button>`;
+              }
 
-            popup.innerHTML = `
-              <div class="modal-content">
-                <div class="close-btn">&times;</div>
-                ${buttonsHtml}
-              </div>
-            `;
-            popup.style.display = 'flex';
+              popup.innerHTML = `
+                <div class="modal-content">
+                  <div class="close-btn">&times;</div>
+                  ${buttonsHtml}
+                </div>
+              `;
+              popup.style.display = 'flex';
 
-            popup.querySelector('.close-btn').addEventListener('click', () => {
-              popup.style.display = 'none';
+              popup.querySelector('.close-btn').addEventListener('click', () => {
+                popup.style.display = 'none';
+              });
             });
-          });
+          }
+
 
           const likeIcon = div.querySelector('.like-icon');
           const likeCountSpan = div.querySelector('.like-count');
