@@ -252,24 +252,35 @@
 
   async function postPendingDream() {
     const selectedDream = localStorage.getItem('selectedDreamText');
+    const pendingDream = localStorage.getItem('pendingDream');
     const generateImage = localStorage.getItem('generateImage') === 'true';
     const uid = localStorage.getItem('uid');
 
-    if (selectedDream && uid) {
-      console.log("🔄 Posting selectedDreamText to worker...");
-      const dreamRes = await fetch('https://stardriftr-api.calembeaz.workers.dev/dreams', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uid, text: selectedDream, generateImage }),
-      });
-      if (!dreamRes.ok) throw new Error(`Failed to post dream: ${dreamRes.status}`);
-      const dreamData = await dreamRes.json();
-      console.log("✅ Dream posted:", dreamData);
+    if (selectedDream && pendingDream && uid) {
+        console.log("🔄 Posting dream to worker...");
 
-      localStorage.removeItem('selectedDreamText');
-      localStorage.removeItem('generateImage');
+        const dreamRes = await fetch('https://stardriftr-api.calembeaz.workers.dev/dreams', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                uid,
+                pendingDream,        // raw dream text
+                selectedDreamText: selectedDream, // user-selected text
+                generateImage
+            }),
+        });
+
+        if (!dreamRes.ok) throw new Error(`Failed to post dream: ${dreamRes.status}`);
+        const dreamData = await dreamRes.json();
+        console.log("✅ Dream posted:", dreamData);
+
+        // Clear localStorage so it doesn’t re-post
+        localStorage.removeItem('selectedDreamText');
+        localStorage.removeItem('generateImage');
+        localStorage.removeItem('pendingDream'); // optional: clear if done
     }
   }
+
 
   async function deleteDream(dreamId) {
     const uid = localStorage.getItem('uid');
