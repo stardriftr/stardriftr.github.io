@@ -60,31 +60,6 @@
         localStorage.setItem('username', profile.username);
         localStorage.setItem('display_name', profile.display_name || profile.username);
 
-
-        const selectedDream = localStorage.getItem('selectedDreamText');
-        const generateImage = localStorage.getItem('generateImage') === 'true'; // boolean
-
-        if (selectedDream) {
-          console.log("🔄 Posting selectedDreamText to worker...");
-          const dreamRes = await fetch('https://stardriftr-api.calembeaz.workers.dev/dreams', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              uid: user.uid,
-              text: selectedDream,
-              generateImage // <-- always sent
-            }),
-          });
-
-          if (!dreamRes.ok) throw new Error(`Failed to post dream: ${dreamRes.status}`);
-          const dreamData = await dreamRes.json();
-          console.log("✅ Dream posted:", dreamData);
-
-          // Clear selectedDreamText so it doesn't re-post
-          localStorage.removeItem('selectedDreamText');
-          localStorage.removeItem('generateImage');
-        }
-
         console.log("➡️ Redirecting to timeline...");
         window.location.href = 'timeline.html';
 
