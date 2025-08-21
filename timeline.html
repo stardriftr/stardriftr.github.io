@@ -181,7 +181,6 @@
               const currentUid = localStorage.getItem('uid');
 
               let buttonsHtml = `<button style="padding:10px 16px; font-size:16px; cursor:pointer;">Report Post</button>`;
-
               if (currentUid && currentUid === d.uid) {
                 buttonsHtml += `<button style="padding:10px 16px; font-size:16px; cursor:pointer; margin-top:8px;" onclick="deleteDream('${d.dream_id}')">Delete Post</button>`;
               }
@@ -199,7 +198,6 @@
               });
             });
           }
-
 
           const likeIcon = div.querySelector('.like-icon');
           const likeCountSpan = div.querySelector('.like-count');
@@ -255,7 +253,7 @@
   async function postPendingDream() {
     const selectedDream = localStorage.getItem('selectedDreamText');
     const generateImage = localStorage.getItem('generateImage') === 'true';
-    const uid = localStorage.getItem('uid'); // ✅ fix
+    const uid = localStorage.getItem('uid');
 
     if (selectedDream && uid) {
       console.log("🔄 Posting selectedDreamText to worker...");
@@ -268,18 +266,14 @@
       const dreamData = await dreamRes.json();
       console.log("✅ Dream posted:", dreamData);
 
-      // Clear so it doesn’t re-post
       localStorage.removeItem('selectedDreamText');
       localStorage.removeItem('generateImage');
     }
   }
 
-
-  // ---------- DELETE DREAM FUNCTION ----------
   async function deleteDream(dreamId) {
     const uid = localStorage.getItem('uid');
     if (!uid) return showPopup("You must be logged in to delete a dream");
-
     if (!confirm("Are you sure you want to delete this dream?")) return;
 
     try {
@@ -290,7 +284,7 @@
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       showPopup("Dream deleted!");
-      await load(); // reload timeline
+      await load();
       document.getElementById('popup').style.display = 'none';
     } catch (err) {
       console.error("Failed to delete dream:", err);
