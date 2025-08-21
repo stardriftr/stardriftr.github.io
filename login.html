@@ -51,23 +51,23 @@
         });
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         const profile = await res.json();
-
         console.log("✅ User profile loaded:", profile);
         userInfo.textContent = `Hello, ${profile.username}`;
 
-        // Save UID, username, and display_name to localStorage
+        // Save UID + profile to localStorage
         localStorage.setItem('uid', user.uid);
         localStorage.setItem('username', profile.username);
         localStorage.setItem('display_name', profile.display_name || profile.username);
 
+        // ✅ Just redirect — DO NOT post dream here
         console.log("➡️ Redirecting to timeline...");
         window.location.href = 'timeline.html';
-
       } catch (err) {
-        console.error("❌ Error fetching profile or posting dream:", err);
+        console.error("❌ Error fetching profile:", err);
         userInfo.textContent = `Failed: ${err.message}`;
         btn.style.display = 'block';
       }
+
 
     } else {
       console.log("ℹ️ No user is signed in");
