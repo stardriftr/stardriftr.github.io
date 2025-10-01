@@ -482,23 +482,27 @@ input:checked + .slider:before {
 }
 
 .badge {
-  display: inline-flex;               /* Ensures emoji + text are aligned */
-  align-items: center;                /* Vertical center */
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  padding: 2px 6px;                   /* Smaller padding than before */
-  border-radius: 6px;                 /* Slightly smaller rounding */
-  font-size: 13px;                     /* Matches your card font scale */
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 13px;
   font-weight: bold;
   line-height: 1;
   text-align: center;
-  border: 2px solid transparent;      /* Set dynamically via JS */
   white-space: nowrap;
   color: white;
   cursor: default;
   transition: transform 0.1s ease;
+  background-color: inherit; /* allow JS to set background */
+  border-width: 2px;        /* don't override border style */
+  border-style: solid;
+  border-color: inherit;     /* allow JS to set border color */
 }
 
 .badge:hover {
   transform: scale(1.05);
 }
+
 
