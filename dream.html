@@ -43,211 +43,125 @@
     </svg>
   </nav>
 
-<script>
-  const API_URL = 'https://stardriftr-api.calembeaz.workers.dev/dreams';
-  const dreamContainer = document.getElementById('dream-container');
-  const dreamId = new URLSearchParams(window.location.search).get('id');
-  const currentUid = localStorage.getItem('uid');
-  const currentUsername = localStorage.getItem('username');
-  const currentDisplayName = localStorage.getItem('display_name');
+  <!-- Load dreamCard.js -->
+  <script type="module">
+    import { createDreamCard } from './dreamCard.js';
 
-  function randomEmoji() {
-    const emojis = ['😴', '🌌', '👁️', '🌀', '🌙', '🛌'];
-    return emojis[Math.floor(Math.random() * emojis.length)];
-  }
+    const API_URL = 'https://stardriftr-api.calembeaz.workers.dev/dreams';
+    const dreamContainer = document.getElementById('dream-container');
+    const dreamId = new URLSearchParams(window.location.search).get('id');
+    const currentUid = localStorage.getItem('uid');
+    const currentDisplayName = localStorage.getItem('display_name');
 
-  function showPopup(msg) {
-    const popup = document.getElementById("popup");
-    popup.textContent = msg;
-    popup.style.display = "block";
-    setTimeout(() => popup.style.display = "none", 3000);
-  }
+    function showPopup(msg) {
+      const popup = document.getElementById("popup");
+      popup.textContent = msg;
+      popup.style.display = "block";
+      setTimeout(() => popup.style.display = "none", 3000);
+    }
 
-  async function loadDream() {
-    try {
-      const res = await fetch(`${API_URL}/${dreamId}`);
-      if (!res.ok) throw new Error("Failed to fetch dream");
-      const d = await res.json();
+    async function loadDream() {
+      try {
+        const res = await fetch(`${API_URL}/${dreamId}`);
+        if (!res.ok) throw new Error("Failed to fetch dream");
+        const d = await res.json();
 
-      dreamContainer.innerHTML = '';
-      const div = document.createElement('div');
-      div.className = 'dream';
+        // Clear container
+        dreamContainer.innerHTML = '';
 
-      const name = d.display_name?.trim() || currentDisplayName || "Anon";
-      const hasLiked = d.likes?.includes(currentUid) || false;
-      const likeCount = d.likes?.length || 0;
+        // Use dreamCard.js to render the main dream card
+        const card = createDreamCard(d, 0);
+        if (card) dreamContainer.appendChild(card);
 
-      div.innerHTML = `
-      <div class="meta">
-        <span>
-          <span class="emoji">${randomEmoji()}</span> 
-          <a href="/user.html?username=${d.username}" class="username" style="color:inherit; text-decoration:none; font-weight:bold; cursor:pointer;">
-            ${name}
-          </a>
-        </span>
-
-        <span>${new Date(Number(d.time)).toLocaleString()}</span>
-      </div>
-      <div class="image-container">
-        ${ d.image ? `<div class="shimmer-box" style="width:100%; height:460px; border-radius:6px;"></div>` : '' }
-      </div>
-      <div class="body">${d.original}</div>
-      <div class="actions" style="display:flex; align-items:center; gap:6px;">
-        <div style="display:flex; align-items:center; gap:4px; cursor:pointer;">
-          <svg class="like-icon" data-dream-id="${d.dream_id}" data-liked="${hasLiked}" viewBox="0 0 24 24" style="fill:${hasLiked ? 'red' : 'none'}; stroke:${hasLiked ? 'red' : '#999'}; stroke-width:2;">
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 
-                     2 6 4 4 6.5 4c1.74 0 3.41 1.01 4.13 2.44h.74
-                     C13.09 5.01 14.76 4 16.5 4 19 4 21 6 21 8.5
-                     c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-          </svg>
-          <span class="like-count">${likeCount > 0 ? likeCount : ''}</span>
-        </div>
-      </div>
-
-      <!-- Separation line -->
-      <div style="margin-top:15px; border-top:1px solid #333; padding-top:10px;">
-        <!-- Comments section -->
-        <div id="comments-section">
+        // --- Comments section ---
+        const commentsDiv = document.createElement('div');
+        commentsDiv.id = 'comments-section';
+        commentsDiv.style.marginTop = '15px';
+        commentsDiv.innerHTML = `
           <h3 style="margin-bottom:10px; font-size:16px; color:#ccc;">Comments</h3>
           <div id="comments-list"></div>
           <div id="comment-form" style="margin-top:10px;">
             <textarea id="comment-input" placeholder="Write a comment..." style="width:100%; min-height:60px; border-radius:6px; padding:6px;"></textarea>
-            <button onclick="postComment()" style="margin-top:6px; padding:6px 12px; border-radius:6px; cursor:pointer;">Post</button>
+            <button id="post-comment-btn" style="margin-top:6px; padding:6px 12px; border-radius:6px; cursor:pointer;">Post</button>
           </div>
-        </div>
-      </div>
-
-
-    `;
-
-
-
-      if (d.image) {
-        const container = div.querySelector('.image-container');
-        const img = new Image();
-        img.src = d.image;
-        img.style.maxWidth = '100%';
-        img.style.borderRadius = '6px';
-        img.onload = () => {
-          container.innerHTML = '';
-          container.appendChild(img);
-        };
-      }
-
-      dreamContainer.appendChild(div);
-
-      // like handling
-      const likeIcon = div.querySelector('.like-icon');
-      const likeCountSpan = div.querySelector('.like-count');
-      likeIcon.addEventListener('click', async () => {
-        if (!currentUid) return showPopup("You must be logged in to like");
-
-        const isLiked = likeIcon.dataset.liked === 'true';
-        likeIcon.dataset.liked = (!isLiked).toString();
-        likeIcon.style.fill = !isLiked ? 'red' : 'none';
-        likeIcon.style.stroke = !isLiked ? 'red' : '#999';
-        let newCount = parseInt(likeCountSpan.textContent || '0');
-        newCount = isLiked ? newCount - 1 : newCount + 1;
-        likeCountSpan.textContent = newCount > 0 ? newCount : '';
-
-        const endpoint = isLiked ? 'unlike' : 'like';
-        try {
-          await fetch(`${API_URL}/${dreamId}/${endpoint}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ uid: currentUid })
-          });
-        } catch (err) {
-          console.error(err);
-          showPopup(`Failed to ${endpoint} dream`);
-        }
-      });
-
-    } finally {
-      document.getElementById('loading-overlay').style.display = 'none';
-    }
-  }
-
-  async function loadComments() {
-    try {
-      const res = await fetch(`${API_URL}/${dreamId}/comments`);
-      if (!res.ok) throw new Error("Failed to fetch comments");
-      const comments = await res.json();
-
-      const commentsList = document.getElementById('comments-list'); // get it fresh
-      if (!commentsList) return; // safeguard
-
-      commentsList.innerHTML = '';
-      comments.sort((a, b) => a.ts - b.ts); // oldest first
-
-      comments.forEach((c) => {
-        const div = document.createElement('div');
-        div.className = 'comment';
-        const ts = new Date(Number(c.ts)).toLocaleString();
-        const emoji = randomEmoji();
-        const name = c.display_name?.trim() || c.username || "Anon";
-
-        div.innerHTML = `
-          <div class="comment-meta" style="font-size:14px; color:#ccc; margin-bottom:4px;">
-            ${emoji} 
-            <a href="/user.html?username=${c.username}" style="text-decoration:none; color:inherit;">
-              ${name}
-            </a>
-            <span style="font-size:12px; color:#888;">${ts}</span>
-          </div>
-          <div class="comment-body" style="font-size:14px; color:#eee;">${c.text}</div>
         `;
+        dreamContainer.appendChild(commentsDiv);
 
+        document.getElementById('post-comment-btn').addEventListener('click', postComment);
 
-        commentsList.appendChild(div);
-      });
-    } catch (err) {
-      console.error(err);
-      showPopup("Error loading comments");
+        await loadComments(); // load comments immediately
+
+      } catch (err) {
+        console.error(err);
+        showPopup("Error loading dream");
+      } finally {
+        document.getElementById('loading-overlay').style.display = 'none';
+      }
     }
-  }
 
+    async function loadComments() {
+      try {
+        const res = await fetch(`${API_URL}/${dreamId}/comments`);
+        if (!res.ok) throw new Error("Failed to fetch comments");
+        const comments = await res.json();
 
-  async function postComment() {
-    const input = document.getElementById('comment-input');
-    const text = input.value.trim();
-    if (!text) return;
-    if (!currentUid) return showPopup("You must be logged in to comment");
-  
-    try {
-      // Use display_name from localStorage, fallback to username, then "Anon"
-      const displayName = localStorage.getItem('display_name') || localStorage.getItem('username') || "Anon";
-  
-      await fetch(`${API_URL}/${dreamId}/comment`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          uid: currentUid,
-          display_name: displayName,
-          text
-        })
-      });
-  
-      input.value = '';
-      await loadComments(); // reload comments after posting
-    } catch (err) {
-      console.error(err);
-      showPopup("Error posting comment");
+        const commentsList = document.getElementById('comments-list');
+        if (!commentsList) return;
+
+        commentsList.innerHTML = '';
+        comments.sort((a, b) => a.ts - b.ts);
+
+        comments.forEach(c => {
+          const div = document.createElement('div');
+          div.className = 'comment';
+          const ts = new Date(Number(c.ts)).toLocaleString();
+          const name = c.display_name?.trim() || c.username || "Anon";
+          div.innerHTML = `
+            <div class="comment-meta" style="font-size:14px; color:#ccc; margin-bottom:4px;">
+              <span>📝</span>
+              <a href="/user.html?username=${c.username}" style="text-decoration:none; color:inherit;">${name}</a>
+              <span style="font-size:12px; color:#888;">${ts}</span>
+            </div>
+            <div class="comment-body" style="font-size:14px; color:#eee;">${c.text}</div>
+          `;
+          commentsList.appendChild(div);
+        });
+      } catch (err) {
+        console.error(err);
+        showPopup("Error loading comments");
+      }
     }
-  }
-  
-    
 
+    async function postComment() {
+      const input = document.getElementById('comment-input');
+      const text = input.value.trim();
+      if (!text) return;
+      if (!currentUid) return showPopup("You must be logged in to comment");
 
-  function goHome() { window.location.href = "index.html"; }
+      try {
+        const displayName = currentDisplayName || localStorage.getItem('username') || "Anon";
 
-  window.addEventListener('load', async () => {
-    await loadDream();
-    await loadComments();
-  });
-</script>
+        await fetch(`${API_URL}/${dreamId}/comment`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            uid: currentUid,
+            display_name: displayName,
+            text
+          })
+        });
+
+        input.value = '';
+        await loadComments(); // reload comments after posting
+      } catch (err) {
+        console.error(err);
+        showPopup("Error posting comment");
+      }
+    }
+
+    function goHome() { window.location.href = "index.html"; }
+
+    window.addEventListener('load', loadDream);
+  </script>
 </body>
 </html>
-
-
-
