@@ -1,4 +1,43 @@
 // dreamCard.js
+
+// Global dream categories definition
+const DREAM_CATEGORIES = [
+  { name: "Nightmare", emoji: "😱", color: "#8B0000", stroke: "#5C0000" },
+  { name: "Anxiety", emoji: "😰", color: "#FF4500", stroke: "#CC3600" },
+  { name: "Mystery", emoji: "🕵️", color: "#2F4F4F", stroke: "#1F3232" },
+  { name: "Surreal", emoji: "🌀", color: "#6A5ACD", stroke: "#483F99" },
+  { name: "Lucid", emoji: "🌌", color: "#1E90FF", stroke: "#1570CC" },
+  { name: "Recurring", emoji: "🔁", color: "#808080", stroke: "#404040" },
+  { name: "Escape", emoji: "🏃‍♂️", color: "#32CD32", stroke: "#249424" },
+  { name: "Falling", emoji: "⬇️", color: "#4682B4", stroke: "#315C86" },
+  { name: "Flying", emoji: "🕊️", color: "#87CEEB", stroke: "#5E9ACF" },
+  { name: "Death", emoji: "⚰️", color: "#000000", stroke: "#000000" },
+  { name: "Afterlife", emoji: "👼", color: "#FFFACD", stroke: "#CFC69D" },
+  { name: "Transformation", emoji: "🦋", color: "#FF69B4", stroke: "#CC548A" },
+  { name: "Disaster", emoji: "🌊", color: "#00008B", stroke: "#000063" },
+  { name: "Apocalypse", emoji: "🌋", color: "#FF0000", stroke: "#CC0000" },
+  { name: "Adventure", emoji: "🗺️", color: "#FFD700", stroke: "#CCAD00" },
+  { name: "Romantic", emoji: "❤️", color: "#FF1493", stroke: "#CC1176" },
+  { name: "Family", emoji: "👨‍👩‍👧‍👦", color: "#FF8C00", stroke: "#CC6F00" },
+  { name: "Social", emoji: "🗣️", color: "#20B2AA", stroke: "#168176" },
+  { name: "Violence", emoji: "⚔️", color: "#A52A2A", stroke: "#7F1F1F" },
+  { name: "Celebrity", emoji: "🌟", color: "#FFD700", stroke: "#CCAD00" },
+  { name: "Work", emoji: "💼", color: "#708090", stroke: "#505D66" },
+  { name: "School", emoji: "🎓", color: "#4169E1", stroke: "#2E4AAD" },
+  { name: "Travel", emoji: "✈️", color: "#00BFFF", stroke: "#0080CC" },
+  { name: "Lost", emoji: "🧭", color: "#696969", stroke: "#404040" },
+  { name: "Home", emoji: "🏠", color: "#8B4513", stroke: "#5C2E0D" },
+  { name: "Childhood", emoji: "🧸", color: "#FFB6C1", stroke: "#CC8FA0" },
+  { name: "Memory", emoji: "🧠", color: "#9370DB", stroke: "#684FAB" },
+  { name: "Animals", emoji: "🐾", color: "#228B22", stroke: "#176616" },
+  { name: "Nature", emoji: "🌳", color: "#2E8B57", stroke: "#1F5E3C" },
+  { name: "Elements", emoji: "🌍", color: "#00CED1", stroke: "#009B9F" },
+  { name: "Money", emoji: "💸", color: "#32CD32", stroke: "#249424" },
+  { name: "Wealth", emoji: "💎", color: "#40E0D0", stroke: "#2DB1A7" },
+  { name: "Success", emoji: "🏆", color: "#FFD700", stroke: "#CCAD00" },
+  { name: "Failure", emoji: "📉", color: "#B22222", stroke: "#801616" }
+];
+
 export function createDreamCard(d, index) {
   const currentUid = localStorage.getItem('uid');
   const fallbackAnon = i => 'Anon-' + String(1000 + i);
@@ -81,6 +120,30 @@ export function createDreamCard(d, index) {
       container.appendChild(img);
     };
   }
+
+  // --- CATEGORY BADGES ---
+  const badgeContainer = document.createElement('div');
+  badgeContainer.className = 'badge-container';
+  badgeContainer.style.display = 'flex';
+  badgeContainer.style.flexWrap = 'wrap';
+  badgeContainer.style.gap = '4px';
+
+  if (Array.isArray(d.categories)) {
+    d.categories.forEach(catName => {
+      const cat = DREAM_CATEGORIES.find(c => c.name === catName);
+      if (cat) {
+        const badge = document.createElement('span');
+        badge.className = 'badge';
+        badge.textContent = `${cat.emoji} ${cat.name}`;
+        badge.style.backgroundColor = cat.color;
+        badge.style.border = `2px solid ${cat.stroke}`;
+        badgeContainer.appendChild(badge);
+      }
+    });
+  }
+
+  const imageContainer = div.querySelector('.image-container');
+  imageContainer.insertAdjacentElement('afterend', badgeContainer);
 
   // Expand/collapse dream text
   if (isTruncated) {
