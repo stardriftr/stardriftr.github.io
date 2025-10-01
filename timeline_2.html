@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dream Timeline</title>
+</head>
+<body>
+  <header id="header">
+    <img
+      src="https://raw.githubusercontent.com/stardriftr/stardriftr.github.io/main/images/star_driftr_logo.png"
+      alt="STAR DRIFTR Logo"
+      class="logo"
+      onclick="goHome()"
+    />
+    <div
+      class="header-right"
+      onclick="toggleMenu()"
+      aria-label="Menu"
+      role="button"
+      tabindex="0"
+    >
+      <svg class="hamburger" viewBox="0 0 24 24" aria-hidden="true">
+        <rect y="4" width="24" height="2" rx="1"></rect>
+        <rect y="11" width="24" height="2" rx="1"></rect>
+        <rect y="18" width="24" height="2" rx="1"></rect>
+      </svg>
+    </div>
+  </header>
+
+  <div id="loading-overlay">
+    <div class="spinner"></div>
+  </div>
+
+  <div class="timeline" id="timeline"></div>
+
+  <div id="popup" style="display: none;"></div>
+
+  <button class="post-fab" onclick="goToTop()">Post</button>
+
+  <nav id="bottom-bar" aria-label="Bottom navigation">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-label="Home" tabindex="0" onclick="void(0)">
+      <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+    </svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-label="Search" tabindex="0" onclick="void(0)">
+      <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16a6.471 6.471 0 004.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zM9.5 14A4.5 4.5 0 119.5 5a4.5 4.5 0 010 9z"/>
+    </svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-label="Profile" tabindex="0"
+         onclick="(() => {
+           const username = localStorage.getItem('username');
+           if (username) {
+             window.location.href = `/user.html?username=${username}`;
+           } else {
+             showPopup('You must be logged in to view your profile');
+           }
+         })()">
+      <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/>
+    </svg>
+  </nav>
+
+<script type="module">
+import { createDreamCard } from './dreamCard.js';
+
+const API_URL = 'https://stardriftr-api.calembeaz.workers.dev/dreams';
+const timeline = document.getElementById('timeline');
+
+async function loadTimeline() {
+  const loadingOverlay = document.getElementById('loading-overlay');
+  loadingOverlay.style.display = 'block';
+  try {
+    const res = await fetch(API_URL);
+    if (!res.ok) throw new Error(`Failed to fetch timeline: ${res.status}`);
+    const dreams = await res.json();
+    timeline.innerHTML = '';
+    dreams.sort((a,b) => Number(b.time)-Number(a.time))
+          .forEach((d,i) => {
+            const card = createDreamCard(d,i);
+            if (card) timeline.appendChild(card);
+          });
+  } catch(err) {
+    console.error(err);
+    showPopup("Error loading timeline: " + err.message);
+  } finally {
+    loadingOverlay.style.display = 'none';
+  }
+}
+
+function goHome() { window.location.href = "index.html"; }
+function goToTop() { window.location.href = 'index.html'; }
+function showPopup(msg) {
+  const popup = document.getElementById("popup");
+  popup.textContent = msg;
+  popup.style.display = "block";
+  setTimeout(() => popup.style.display = "none", 3000);
+}
+
+window.addEventListener('load', loadTimeline);
+</script>
+</body>
+</html>
