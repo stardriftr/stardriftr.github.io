@@ -2,41 +2,42 @@
 
 // Global dream categories definition
 const DREAM_CATEGORIES = [
-  { name: "Nightmare", emoji: "😱", color: "#8B0000", stroke: "#5C0000" },
-  { name: "Anxiety", emoji: "😰", color: "#FF4500", stroke: "#CC3600" },
-  { name: "Mystery", emoji: "🕵️", color: "#2F4F4F", stroke: "#1F3232" },
-  { name: "Surreal", emoji: "🌀", color: "#6A5ACD", stroke: "#483F99" },
-  { name: "Lucid", emoji: "🌌", color: "#1E90FF", stroke: "#1570CC" },
-  { name: "Recurring", emoji: "🔁", color: "#808080", stroke: "#404040" },
-  { name: "Escape", emoji: "🏃‍♂️", color: "#32CD32", stroke: "#249424" },
-  { name: "Falling", emoji: "⬇️", color: "#4682B4", stroke: "#315C86" },
-  { name: "Flying", emoji: "🕊️", color: "#87CEEB", stroke: "#5E9ACF" },
-  { name: "Death", emoji: "⚰️", color: "#000000", stroke: "#000000" },
-  { name: "Afterlife", emoji: "👼", color: "#FFFACD", stroke: "#CFC69D" },
-  { name: "Transformation", emoji: "🦋", color: "#FF69B4", stroke: "#CC548A" },
-  { name: "Disaster", emoji: "🌊", color: "#00008B", stroke: "#000063" },
-  { name: "Apocalypse", emoji: "🌋", color: "#FF0000", stroke: "#CC0000" },
-  { name: "Adventure", emoji: "🗺️", color: "#FFD700", stroke: "#CCAD00" },
-  { name: "Romantic", emoji: "❤️", color: "#FF1493", stroke: "#CC1176" },
-  { name: "Family", emoji: "👨‍👩‍👧‍👦", color: "#FF8C00", stroke: "#CC6F00" },
-  { name: "Social", emoji: "🗣️", color: "#20B2AA", stroke: "#168176" },
-  { name: "Violence", emoji: "⚔️", color: "#A52A2A", stroke: "#7F1F1F" },
-  { name: "Celebrity", emoji: "🌟", color: "#FFD700", stroke: "#CCAD00" },
-  { name: "Work", emoji: "💼", color: "#708090", stroke: "#505D66" },
-  { name: "School", emoji: "🎓", color: "#4169E1", stroke: "#2E4AAD" },
-  { name: "Travel", emoji: "✈️", color: "#00BFFF", stroke: "#0080CC" },
-  { name: "Lost", emoji: "🧭", color: "#696969", stroke: "#404040" },
-  { name: "Home", emoji: "🏠", color: "#8B4513", stroke: "#5C2E0D" },
-  { name: "Childhood", emoji: "🧸", color: "#FFB6C1", stroke: "#CC8FA0" },
-  { name: "Memory", emoji: "🧠", color: "#9370DB", stroke: "#684FAB" },
-  { name: "Animals", emoji: "🐾", color: "#228B22", stroke: "#176616" },
-  { name: "Nature", emoji: "🌳", color: "#2E8B57", stroke: "#1F5E3C" },
-  { name: "Elements", emoji: "🌍", color: "#00CED1", stroke: "#009B9F" },
-  { name: "Money", emoji: "💸", color: "#32CD32", stroke: "#249424" },
-  { name: "Wealth", emoji: "💎", color: "#40E0D0", stroke: "#2DB1A7" },
-  { name: "Success", emoji: "🏆", color: "#FFD700", stroke: "#CCAD00" },
-  { name: "Failure", emoji: "📉", color: "#B22222", stroke: "#801616" }
+    { "emoji": "😱", "name": "Nightmare", "background": "#a76f7f", "stroke": "#6b3b42" },
+    { "emoji": "😰", "name": "Anxiety", "background": "#ff8c61", "stroke": "#7f4425" },
+    { "emoji": "🕵️", "name": "Mystery", "background": "#4f6666", "stroke": "#2b3737" },
+    { "emoji": "🌀", "name": "Surreal", "background": "#8a7acc", "stroke": "#483d66" },
+    { "emoji": "🌌", "name": "Lucid", "background": "#4fa3ff", "stroke": "#1f487f" },
+    { "emoji": "🔁", "name": "Recurring", "background": "#a0a0a0", "stroke": "#505050" },
+    { "emoji": "🏃‍♂️", "name": "Escape", "background": "#7ed77e", "stroke": "#196619" },
+    { "emoji": "⬇️", "name": "Falling", "background": "#7fa3c4", "stroke": "#23415a" },
+    { "emoji": "🕊️", "name": "Flying", "background": "#a0dfff", "stroke": "#438777" },
+    { "emoji": "⚰️", "name": "Death", "background": "#2c2c2c", "stroke": "#000000" },
+    { "emoji": "👼", "name": "Afterlife", "background": "#fff8b3", "stroke": "#bfff66" },
+    { "emoji": "🦋", "name": "Transformation", "background": "#ff9cc9", "stroke": "#7f5a7a" },
+    { "emoji": "🌊", "name": "Disaster", "background": "#3b3b7f", "stroke": "#000045" },
+    { "emoji": "🌋", "name": "Apocalypse", "background": "#ff7f7f", "stroke": "#7f0000" },
+    { "emoji": "🗺️", "name": "Adventure", "background": "#ffe066", "stroke": "#7f6b00" },
+    { "emoji": "❤️", "name": "Romantic", "background": "#ff66aa", "stroke": "#7f0a49" },
+    { "emoji": "👨‍👩‍👧‍👦", "name": "Family", "background": "#ffad66", "stroke": "#7f4600" },
+    { "emoji": "🗣️", "name": "Social", "background": "#66c0b0", "stroke": "#105955" },
+    { "emoji": "⚔️", "name": "Violence", "background": "#bb6b6b", "stroke": "#521515" },
+    { "emoji": "🌟", "name": "Celebrity", "background": "#ffe066", "stroke": "#7f6b00" },
+    { "emoji": "💼", "name": "Work", "background": "#87909c", "stroke": "#384848" },
+    { "emoji": "🎓", "name": "School", "background": "#6b85ff", "stroke": "#203484" },
+    { "emoji": "✈️", "name": "Travel", "background": "#66c0ff", "stroke": "#005f7f" },
+    { "emoji": "🧭", "name": "Lost", "background": "#8a8a8a", "stroke": "#343434" },
+    { "emoji": "🏠", "name": "Home", "background": "#a36b3b", "stroke": "#462208" },
+    { "emoji": "🧸", "name": "Childhood", "background": "#ffc2d1", "stroke": "#7f5b60" },
+    { "emoji": "🧠", "name": "Memory", "background": "#b49dff", "stroke": "#4b385d" },
+    { "emoji": "🐾", "name": "Animals", "background": "#66aa66", "stroke": "#114411" },
+    { "emoji": "🌳", "name": "Nature", "background": "#4fa377", "stroke": "#17442b" },
+    { "emoji": "🌍", "name": "Elements", "background": "#66e0e0", "stroke": "#006e6e" },
+    { "emoji": "💸", "name": "Money", "background": "#7ed77e", "stroke": "#196619" },
+    { "emoji": "💎", "name": "Wealth", "background": "#66d9d9", "stroke": "#207060" },
+    { "emoji": "🏆", "name": "Success", "background": "#ffe066", "stroke": "#7f6b00" },
+    { "emoji": "📉", "name": "Failure", "background": "#bb6666", "stroke": "#591111" }
 ];
+
 
 export function createDreamCard(d, index) {
   const currentUid = localStorage.getItem('uid');
@@ -211,3 +212,4 @@ export function createDreamCard(d, index) {
 
   return div;
 }
+
