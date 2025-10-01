@@ -1,26 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="stylesheet" href="https://stardriftr.github.io/style.css">
+  <link rel="stylesheet" href="style.css">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dream</title>
 </head>
 <body>
+
   <header id="header">
-    <img
-      src="https://raw.githubusercontent.com/stardriftr/stardriftr.github.io/main/images/star_driftr_logo.png"
-      alt="STAR DRIFTR Logo"
-      class="logo"
-      onclick="goHome()"
-    />
-    <div
-      class="header-right"
-      onclick="toggleMenu()"
-      aria-label="Menu"
-      role="button"
-      tabindex="0"
-    >
+    <img src="Imagestar_driftr_logo.png" alt="STAR DRIFTR Logo" class="logo" onclick="goHome()" />
+    <div class="header-right" onclick="toggleMenu()" aria-label="Menu" role="button" tabindex="0">
       <svg class="hamburger" viewBox="0 0 24 24" aria-hidden="true">
         <rect y="4" width="24" height="2" rx="1"></rect>
         <rect y="11" width="24" height="2" rx="1"></rect>
@@ -29,13 +19,12 @@
     </div>
   </header>
 
-  <div id="loading-overlay">
-    <div class="spinner"></div>
-  </div>
+  <div id="loading-overlay"><div class="spinner"></div></div>
 
+  <!-- Dream card container -->
   <div class="timeline" id="dream-container"></div>
 
-  <!-- Comment section below the dream card -->
+  <!-- Comments section -->
   <div id="comments-section" style="width:100%; max-width:600px; margin:15px auto;">
     <h3 style="margin-bottom:10px; font-size:16px; color:#ccc;">Comments</h3>
     <div id="comments-list"></div>
@@ -69,17 +58,15 @@
       setTimeout(() => popup.style.display = "none", 3000);
     }
 
-    // --- Load dream card ---
+    // Load dream card
     async function loadDream() {
       try {
         const res = await fetch(`${API_URL}/${dreamId}`);
         if (!res.ok) throw new Error("Failed to fetch dream");
-        const d = await res.json();
+        const dream = await res.json();
 
         dreamContainer.innerHTML = '';
-
-        // Use the timeline-style dream card renderer
-        const card = createDreamCard(d, 0, { currentUid });
+        const card = createDreamCard(dream, 0, { currentUid });
         dreamContainer.appendChild(card);
 
       } catch (err) {
@@ -90,7 +77,7 @@
       }
     }
 
-    // --- Load comments separately ---
+    // Load comments
     async function loadComments() {
       try {
         const res = await fetch(`${API_URL}/${dreamId}/comments`);
@@ -99,7 +86,7 @@
 
         const commentsList = document.getElementById('comments-list');
         commentsList.innerHTML = '';
-        comments.sort((a, b) => a.ts - b.ts);
+        comments.sort((a,b)=>a.ts-b.ts);
 
         comments.forEach(c => {
           const div = document.createElement('div');
@@ -119,13 +106,14 @@
           `;
           commentsList.appendChild(div);
         });
+
       } catch (err) {
         console.error(err);
         showPopup("Error loading comments");
       }
     }
 
-    // --- Post comment ---
+    // Post comment
     async function postComment() {
       const input = document.getElementById('comment-input');
       const text = input.value.trim();
@@ -134,13 +122,11 @@
 
       try {
         const displayName = currentDisplayName || localStorage.getItem('username') || "Anon";
-
         await fetch(`${API_URL}/${dreamId}/comment`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ uid: currentUid, display_name: displayName, text })
         });
-
         input.value = '';
         await loadComments();
       } catch (err) {
@@ -150,13 +136,14 @@
     }
 
     document.getElementById('post-comment-btn').addEventListener('click', postComment);
-
-    function goHome() { window.location.href = "index.html"; }
+    function goHome(){ window.location.href='index.html'; }
 
     window.addEventListener('load', async () => {
       await loadDream();
       await loadComments();
     });
+
   </script>
+
 </body>
 </html>
