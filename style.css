@@ -473,4 +473,24 @@ input:checked + .slider:before {
 }
 
 
+/* Badge container styling */
+.badge {
+  display: inline-block;             /* Allows multiple badges to line up nicely */
+  padding: 4px 10px;                 /* Vertical + horizontal padding */
+  border-radius: 8px;                /* Rounded corners */
+  font-size: 14px;                   /* Badge text size */
+  font-weight: bold;                 /* Makes the emoji + text stand out */
+  margin: 2px 4px;                   /* Space between badges */
+  line-height: 1;                    /* Keep text vertically centered */
+  text-align: center;                /* Centers text inside the badge */
+  border: 2px solid transparent;     /* Default border, overridden by JS */
+  white-space: nowrap;                /* Prevent text from wrapping */
+  color: white;                       /* Text color */
+  cursor: default;                    /* Optional: pointer if you want interactivity */
+  transition: transform 0.1s ease;    /* Optional: subtle hover effect */
+}
 
+/* Optional hover effect */
+.badge:hover {
+  transform: scale(1.05);
+}
