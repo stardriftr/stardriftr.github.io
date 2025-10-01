@@ -64,9 +64,14 @@
         localStorage.setItem('username', profile.username);
         localStorage.setItem('display_name', profile.display_name || profile.username);
 
-        // ✅ Just redirect — DO NOT post dream here
-        console.log("➡️ Redirecting to timeline...");
-        window.location.href = 'timeline.html';
+       // Save UID + profile to localStorage
+      localStorage.setItem('uid', user.uid);
+      localStorage.setItem('username', profile.username);
+      localStorage.setItem('display_name', profile.display_name || profile.username);
+      
+      // ✅ Now redirect AFTER storage
+      window.location.href = 'timeline.html';
+
       } catch (err) {
         console.error("❌ Error fetching profile:", err);
         userInfo.textContent = `Failed: ${err.message}`;
@@ -97,4 +102,5 @@
   </script>
 </body>
 </html>
+
 
