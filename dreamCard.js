@@ -38,7 +38,6 @@ const DREAM_CATEGORIES = [
     { "emoji": "📉", "name": "Failure", "background": "#bb6666", "stroke": "#591111" }
 ];
 
-
 export function createDreamCard(d, index) {
   const currentUid = localStorage.getItem('uid');
   const fallbackAnon = i => 'Anon-' + String(1000 + i);
@@ -136,7 +135,7 @@ export function createDreamCard(d, index) {
         const badge = document.createElement('span');
         badge.className = 'badge';
         badge.textContent = `${cat.emoji} ${cat.name}`;
-        badge.style.backgroundColor = cat.color;
+        badge.style.backgroundColor = cat.background; // ✅ fixed
         badge.style.border = `2px solid ${cat.stroke}`;
         badgeContainer.appendChild(badge);
       }
@@ -212,4 +211,3 @@ export function createDreamCard(d, index) {
 
   return div;
 }
-
