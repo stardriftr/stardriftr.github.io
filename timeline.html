@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<link rel="stylesheet" href="https://stardriftr.github.io/style.css">
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Dream Timeline</title>
+  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dream Timeline</title>
 </head>
 <body>
   <header id="header">
@@ -59,254 +59,44 @@
     </svg>
   </nav>
 
-<script>
-  const API_URL = 'https://stardriftr-api.calembeaz.workers.dev/dreams';
-  const timeline = document.getElementById('timeline');
+<script type="module">
+import { createDreamCard } from './dreamCard.js';
 
-  function randomEmoji() {
-    const emojis = ['😴', '🌌', '👁️', '🌀', '🌙', '🛌'];
-    return emojis[Math.floor(Math.random() * emojis.length)];
-  }
+const API_URL = 'https://stardriftr-api.calembeaz.workers.dev/dreams';
+const timeline = document.getElementById('timeline');
 
-  function fallbackAnon(i) {
-    return 'Anon-' + String(1000 + i);
-  }
-
-  async function load() {
-    const loadingOverlay = document.getElementById('loading-overlay');
-    const currentUid = localStorage.getItem('uid');
-    try {
-      const res = await fetch(API_URL);
-      if (!res.ok) throw new Error(`Failed to fetch timeline: ${res.status}`);
-      const list = await res.json();
-      timeline.innerHTML = '';
-      list
-        .sort((a, b) => Number(b.time) - Number(a.time))
-        .forEach((d, i) => {
-          if (!d || !d.original) return;
-          const div = document.createElement('div');
-          div.className = 'dream';
-
-          const name = d.display_name?.trim() || fallbackAnon(i);
-
-          let fullText = d.original;
-          let isTruncated = fullText.length > 200;
-          let displayText = isTruncated ? fullText.slice(0, 200) + '...' : fullText;
-
-          const hasLiked = d.likes?.includes(currentUid) || false;
-          const likeCount = d.likes?.length || 0;
-
-          div.innerHTML = `
-            <div class="meta" style="display:flex; justify-content:space-between; align-items:center;">
-              <span>
-                <span class="emoji">${randomEmoji()}</span> 
-                <a href="/user.html?username=${d.username}" class="username" style="color:inherit; text-decoration:none; font-weight:bold; cursor:pointer;">
-                  ${name}
-                </a>
-              </span>
-
-              <span style="display:flex; align-items:center; gap:8px;">
-                <span>${new Date(Number(d.time)).toLocaleString()}</span>
-                <svg class="options-btn" viewBox="0 0 24 24" style="width:20px;height:20px;cursor:pointer;">
-                  <circle cx="5" cy="12" r="2"/>
-                  <circle cx="12" cy="12" r="2"/>
-                  <circle cx="19" cy="12" r="2"/>
-                </svg>
-              </span>
-            </div>
-
-            <div class="image-container">
-              ${ d.image ? `<div class="shimmer-box" style="width:100%; height:460px; border-radius:6px;"></div>` : '' }
-            </div>
-
-            <div class="body">
-              ${displayText}
-              ${ isTruncated ? `<div class="expand-link" style="color:#5492a5; cursor:pointer; font-weight:bold; text-decoration:none; margin-top:4px;">Expand full dream</div>` : '' }
-            </div>
-
-            <div class="actions" style="display:flex; align-items:center; gap:12px;">
-              <div style="display:flex; align-items:center; gap:4px; cursor:pointer;">
-                <svg class="like-icon" data-dream-id="${d.dream_id}" data-liked="${hasLiked}" viewBox="0 0 24 24" style="fill:${hasLiked ? 'red' : 'none'}; stroke:${hasLiked ? 'red' : '#999'}; stroke-width:2;">
-                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 
-                           2 6 4 4 6.5 4c1.74 0 3.41 1.01 4.13 2.44h.74
-                           C13.09 5.01 14.76 4 16.5 4 19 4 21 6 21 8.5
-                           c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                </svg>
-                <span class="like-count">${likeCount > 0 ? likeCount : ''}</span>
-              </div>
-
-              <div style="display:flex; align-items:center; gap:4px; cursor:pointer;" onclick="window.location.href='dream.html?id=${d.dream_id}'">
-                <svg viewBox="0 0 24 24" style="stroke:#999; fill:none;">
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z"/>
-                </svg>
-                <span class="comment-count">${d.comment_count > 0 ? d.comment_count : ''}</span>
-              </div>
-
-            </div>
-          `;
-
-          if (d.image) {
-            const container = div.querySelector('.image-container');
-            const img = new Image();
-            img.src = d.image;
-            img.style.maxWidth = '100%';
-            img.style.borderRadius = '6px';
-            img.onload = () => {
-              container.innerHTML = '';
-              container.appendChild(img);
-            };
-          }
-
-          if (isTruncated) {
-            const expandLink = div.querySelector('.expand-link');
-            expandLink.addEventListener('click', () => {
-              const bodyDiv = expandLink.parentElement;
-              if (expandLink.textContent === 'Expand full dream') {
-                bodyDiv.innerHTML = fullText + `<div class="expand-link" style="color:#5492a5; cursor:pointer; font-weight:bold; text-decoration:none; margin-top:4px;">Hide full dream</div>`;
-                bodyDiv.querySelector('.expand-link').addEventListener('click', () => {
-                  bodyDiv.innerHTML = displayText + `<div class="expand-link" style="color:#5492a5; cursor:pointer; font-weight:bold; text-decoration:none; margin-top:4px;">Expand full dream</div>`;
-                  bodyDiv.querySelector('.expand-link').addEventListener('click', arguments.callee);
-                });
-              }
-            });
-          }
-
-          timeline.appendChild(div);
-
-          // ---------- OPTIONS BUTTON POPUP ----------
-          const optionsBtn = div.querySelector('.options-btn');
-          if (optionsBtn) {
-            optionsBtn.addEventListener('click', () => {
-              const popup = document.getElementById('popup');
-              const currentUid = localStorage.getItem('uid');
-
-              let buttonsHtml = `<button style="padding:10px 16px; font-size:16px; cursor:pointer;">Report Post</button>`;
-              if (currentUid && currentUid === d.uid) {
-                buttonsHtml += `<button style="padding:10px 16px; font-size:16px; cursor:pointer; margin-top:8px;" onclick="deleteDream('${d.dream_id}')">Delete Post</button>`;
-              }
-
-              popup.innerHTML = `
-                <div class="modal-content">
-                  <div class="close-btn">&times;</div>
-                  ${buttonsHtml}
-                </div>
-              `;
-              popup.style.display = 'flex';
-
-              popup.querySelector('.close-btn').addEventListener('click', () => {
-                popup.style.display = 'none';
-              });
-            });
-          }
-
-          const likeIcon = div.querySelector('.like-icon');
-          const likeCountSpan = div.querySelector('.like-count');
-          likeIcon.addEventListener('click', async () => {
-            const dreamId = likeIcon.dataset.dreamId;
-            const uid = currentUid;
-            if (!uid) return showPopup("You must be logged in to like");
-
-            const isLiked = likeIcon.dataset.liked === 'true';
-            likeIcon.dataset.liked = (!isLiked).toString();
-            likeIcon.style.fill = !isLiked ? 'red' : 'none';
-            likeIcon.style.stroke = !isLiked ? 'red' : '#999';
-            likeCountSpan.textContent = !isLiked ? (likeCount + 1) : (likeCount - 1 || '');
-            
-            const endpoint = isLiked ? 'unlike' : 'like';
-            try {
-              await fetch(`${API_URL}/${dreamId}/${endpoint}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ uid })
-              });
-            } catch (err) {
-              console.error(err);
-              showPopup(`Failed to ${endpoint} dream`);
-              likeIcon.dataset.liked = isLiked.toString();
-              likeIcon.style.fill = isLiked ? 'red' : 'none';
-              likeIcon.style.stroke = isLiked ? 'red' : '#999';
-              likeCountSpan.textContent = likeCount > 0 ? likeCount : '';
-            }
+async function loadTimeline() {
+  const loadingOverlay = document.getElementById('loading-overlay');
+  loadingOverlay.style.display = 'block';
+  try {
+    const res = await fetch(API_URL);
+    if (!res.ok) throw new Error(`Failed to fetch timeline: ${res.status}`);
+    const dreams = await res.json();
+    timeline.innerHTML = '';
+    dreams.sort((a,b) => Number(b.time)-Number(a.time))
+          .forEach((d,i) => {
+            const card = createDreamCard(d,i);
+            if (card) timeline.appendChild(card);
           });
-        });
-
-      const firstDream = timeline.querySelector('.dream');
-      if (firstDream) firstDream.classList.add('pulsating-glow');
-
-    } catch (err) {
-      console.error('Error loading timeline:', err);
-      showPopup(`Error loading timeline: ${err.message}`);
-    } finally {
-      document.getElementById('loading-overlay').style.display = 'none';
-    }
+  } catch(err) {
+    console.error(err);
+    showPopup("Error loading timeline: " + err.message);
+  } finally {
+    loadingOverlay.style.display = 'none';
   }
+}
 
-  function goHome() { window.location.href = "index.html"; }
-  function goToTop() { window.location.href = 'index.html'; }
-  function showPopup(msg) {
-    const popup = document.getElementById("popup");
-    popup.textContent = msg;
-    popup.style.display = "block";
-    setTimeout(() => popup.style.display = "none", 3000);
-  }
+function goHome() { window.location.href = "index.html"; }
+function goToTop() { window.location.href = 'index.html'; }
+function showPopup(msg) {
+  const popup = document.getElementById("popup");
+  popup.textContent = msg;
+  popup.style.display = "block";
+  setTimeout(() => popup.style.display = "none", 3000);
+}
 
-  async function postPendingDream() {
-    const selectedDream = localStorage.getItem('selectedDreamText');
-    const pendingDream = localStorage.getItem('pendingDream');
-    const generateImage = localStorage.getItem('generateImage') === 'true';
-    const uid = localStorage.getItem('uid');
-
-    if (selectedDream && pendingDream && uid) {
-        console.log("🔄 Posting dream to worker...");
-
-        const dreamRes = await fetch('https://stardriftr-api.calembeaz.workers.dev/dreams', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                uid,
-                pendingDream,        // raw dream text
-                selectedDreamText: selectedDream, // user-selected text
-                generateImage
-            }),
-        });
-
-        if (!dreamRes.ok) throw new Error(`Failed to post dream: ${dreamRes.status}`);
-        const dreamData = await dreamRes.json();
-        console.log("✅ Dream posted:", dreamData);
-
-        // Clear localStorage so it doesn’t re-post
-        localStorage.removeItem('selectedDreamText');
-        localStorage.removeItem('generateImage');
-        localStorage.removeItem('pendingDream'); // optional: clear if done
-    }
-  }
-
-
-  async function deleteDream(dreamId) {
-    const uid = localStorage.getItem('uid');
-    if (!uid) return showPopup("You must be logged in to delete a dream");
-    if (!confirm("Are you sure you want to delete this dream?")) return;
-
-    try {
-      const res = await fetch(`${API_URL}/${dreamId}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uid })
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      showPopup("Dream deleted!");
-      await load();
-      document.getElementById('popup').style.display = 'none';
-    } catch (err) {
-      console.error("Failed to delete dream:", err);
-      showPopup("Failed to delete dream");
-    }
-  }
-
-  window.addEventListener('load', async () => {
-    await postPendingDream();
-    await load();
-  });
+window.addEventListener('load', loadTimeline);
 </script>
 </body>
 </html>
+
