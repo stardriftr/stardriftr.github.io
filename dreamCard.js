@@ -161,22 +161,49 @@ export function createDreamCard(d, index) {
   }
 
   // Options button popup
-  const optionsBtn = div.querySelector('.options-btn');
-  if (optionsBtn) {
-    optionsBtn.addEventListener('click', () => {
-      const popup = document.getElementById('popup');
-      const uid = localStorage.getItem('uid');
+    const optionsBtn = div.querySelector('.options-btn');
+    if (optionsBtn) {
+      optionsBtn.addEventListener('click', () => {
+        const popup = document.getElementById('popup');
+        const uid = localStorage.getItem('uid');
+    
+        let buttonsHtml = `<button style="padding:10px 16px; font-size:16px; cursor:pointer;">Report Post</button>`;
+    
+        popup.innerHTML = `<div class="modal-content"><div class="close-btn">&times;</div>${buttonsHtml}</div>`;
+        popup.style.display = 'flex';
+    
+        // Close button
+        popup.querySelector('.close-btn').addEventListener('click', () => popup.style.display = 'none');
+    
+        // Add delete button if owner
+        if (uid && uid === d.uid) {
+          const deleteBtn = document.createElement('button');
+          deleteBtn.textContent = "Delete Post";
+          deleteBtn.style.cssText = "padding:10px 16px; font-size:16px; cursor:pointer; margin-top:8px;";
+          popup.querySelector('.modal-content').appendChild(deleteBtn);
+    
+          deleteBtn.addEventListener('click', async () => {
+            if (!confirm("Are you sure you want to delete this dream?")) return;
+    
+            try {
+              const res = await fetch(`https://stardriftr-api.calembeaz.workers.dev/dreams/${d.dream_id}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ uid })
+              });
+              if (!res.ok) throw new Error(`HTTP ${res.status}`);
+              alert("Dream deleted!");
+              popup.style.display = 'none';
+              div.remove(); // remove the card immediately from timeline
+            } catch (err) {
+              console.error("Failed to delete dream:", err);
+              alert("Failed to delete dream");
+            }
+          });
+        }
+      });
+    }
 
-      let buttonsHtml = `<button style="padding:10px 16px; font-size:16px; cursor:pointer;">Report Post</button>`;
-      if (uid && uid === d.uid) {
-        buttonsHtml += `<button style="padding:10px 16px; font-size:16px; cursor:pointer; margin-top:8px;" onclick="deleteDream('${d.dream_id}')">Delete Post</button>`;
-      }
-
-      popup.innerHTML = `<div class="modal-content"><div class="close-btn">&times;</div>${buttonsHtml}</div>`;
-      popup.style.display = 'flex';
-      popup.querySelector('.close-btn').addEventListener('click', () => popup.style.display = 'none');
-    });
-  }
 
   // Like button
   const likeIcon = div.querySelector('.like-icon');
@@ -211,3 +238,4 @@ export function createDreamCard(d, index) {
 
   return div;
 }
+
