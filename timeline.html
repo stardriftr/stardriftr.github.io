@@ -65,6 +65,24 @@ import { createDreamCard } from './dreamCard.js';
 const API_URL = 'https://stardriftr-api.calembeaz.workers.dev/dreams';
 const timeline = document.getElementById('timeline');
 
+function goHome() { window.location.href = "index.html"; }
+function goToTop() { window.location.href = 'index.html'; }
+function showPopup(msg) {
+  const popup = document.getElementById("popup");
+  popup.textContent = msg;
+  popup.style.display = "block";
+  setTimeout(() => popup.style.display = "none", 3000);
+}
+
+function randomEmoji() {
+  const emojis = ['😴', '🌌', '👁️', '🌀', '🌙', '🛌'];
+  return emojis[Math.floor(Math.random() * emojis.length)];
+}
+
+function fallbackAnon(i) {
+  return 'Anon-' + String(1000 + i);
+}
+
 async function loadTimeline() {
   const loadingOverlay = document.getElementById('loading-overlay');
   loadingOverlay.style.display = 'block';
@@ -86,17 +104,50 @@ async function loadTimeline() {
   }
 }
 
-function goHome() { window.location.href = "index.html"; }
-function goToTop() { window.location.href = 'index.html'; }
-function showPopup(msg) {
-  const popup = document.getElementById("popup");
-  popup.textContent = msg;
-  popup.style.display = "block";
-  setTimeout(() => popup.style.display = "none", 3000);
+async function postPendingDream() {
+  const selectedDream = localStorage.getItem('selectedDreamText');
+  const pendingDream = localStorage.getItem('pendingDream');
+  const generateImage = localStorage.getItem('generateImage') === 'true';
+  const uid = localStorage.getItem('uid');
+
+  if (selectedDream && pendingDream && uid) {
+    console.log("🔄 Posting dream:", {uid, pendingDream, selectedDream, generateImage});
+
+    try {
+      const dreamRes = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          uid,
+          pendingDream,
+          selectedDreamText: selectedDream,
+          generateImage
+        }),
+      });
+
+      if (!dreamRes.ok) throw new Error(`Failed to post dream: ${dreamRes.status}`);
+      const dreamData = await dreamRes.json();
+      console.log("✅ Dream posted:", dreamData);
+
+      // Clear localStorage so it doesn’t re-post
+      localStorage.removeItem('selectedDreamText');
+      localStorage.removeItem('generateImage');
+      localStorage.removeItem('pendingDream');
+    } catch (err) {
+      console.error("❌ Error posting dream:", err);
+      showPopup("Failed to post dream: " + err.message);
+    }
+  }
 }
 
-window.addEventListener('load', loadTimeline);
+// ---------- Handle both first load and bfcache navigation ----------
+window.addEventListener('pageshow', async (event) => {
+  if (event.persisted || !document.wasPosted) {
+    await postPendingDream();
+    await loadTimeline();
+    document.wasPosted = true;
+  }
+});
 </script>
 </body>
 </html>
-
