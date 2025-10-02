@@ -4,7 +4,7 @@
 const notificationBox = document.createElement('div');
 notificationBox.id = 'notification-box';
 notificationBox.style.cssText = `
-  display: none;
+  display: none; /* hidden by default */
   position: fixed;
   bottom: 70px; /* default above footer */
   left: 50%;
@@ -45,11 +45,14 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Show/Hide functions
+// Show function
 export function showNotification(text, options = {}) {
   const { duration = null, bottom = 70, showSpinner = true } = options;
   const spinner = notificationBox.querySelector('.spinner');
   const textSpan = notificationBox.querySelector('#notification-text');
+
+  // Only update if text exists
+  if (!text) return;
 
   textSpan.textContent = text;
   spinner.style.display = showSpinner ? 'block' : 'none';
@@ -61,6 +64,7 @@ export function showNotification(text, options = {}) {
   }
 }
 
+// Hide function
 export function hideNotification() {
   notificationBox.style.display = 'none';
 }
