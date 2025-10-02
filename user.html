@@ -7,26 +7,29 @@
 <title>User Profile</title>
 </head>
 <body>
+  <!-- Header will be injected -->
 
-<!-- Header will be injected by header.js -->
-<div id="header-container"></div>
+  <div id="loading-overlay">
+    <div class="spinner"></div>
+  </div>
 
-<div id="loading-overlay">
-  <div class="spinner"></div>
-</div>
+  <div class="timeline" id="timeline"></div>
+  <div id="popup" style="display: none;"></div>
+  <button class="post-fab" onclick="goToTop()">Post</button>
 
-<div class="timeline" id="timeline"></div>
-<div id="popup"></div>
-<button class="post-fab" onclick="goToTop()">Post</button>
-
-<!-- Footer will be injected by footer.js -->
-<div id="footer-container"></div>
+  <!-- Footer will be injected -->
 
 <script type="module">
 import { createDreamCard } from './dreamCard.js';
+import { createHeader } from './header.js';
+import { createFooter } from './footer.js';
 
 const API_URL = 'https://stardriftr-api.calembeaz.workers.dev';
 const timeline = document.getElementById('timeline');
+
+// Inject header and footer
+document.body.prepend(createHeader());
+document.body.appendChild(createFooter());
 
 function randomEmoji() {
   const emojis = ['😴', '🌌', '👁️', '🌀', '🌙', '🛌'];
@@ -169,9 +172,5 @@ async function loadUserProfile() {
 
 window.addEventListener('load', loadUserProfile);
 </script>
-
-<script type="module" src="dreamCard.js"></script>
-<script src="header.js"></script>
-<script src="footer.js"></script>
 </body>
 </html>
