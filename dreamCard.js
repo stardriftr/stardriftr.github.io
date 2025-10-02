@@ -136,7 +136,7 @@ export function createDreamCard(d, index) {
         badge.className = 'badge';
         badge.textContent = `${cat.emoji} ${cat.name}`;
         badge.style.backgroundColor = cat.background; // ✅ fixed
-        badge.style.border = `2px solid ${cat.stroke}`;
+        badge.style.border = `1px solid ${cat.stroke}`;
         badgeContainer.appendChild(badge);
       }
     });
@@ -238,4 +238,5 @@ export function createDreamCard(d, index) {
 
   return div;
 }
+
 
