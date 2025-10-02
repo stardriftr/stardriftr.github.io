@@ -7,27 +7,9 @@
 <title>User Profile</title>
 </head>
 <body>
-<header id="header">
-  <img
-    src="https://raw.githubusercontent.com/stardriftr/stardriftr.github.io/main/images/star_driftr_logo.png"
-    alt="STAR DRIFTR Logo"
-    class="logo"
-    onclick="goHome()"
-  />
-  <div
-    class="header-right"
-    onclick="toggleMenu()"
-    aria-label="Menu"
-    role="button"
-    tabindex="0"
-  >
-    <svg class="hamburger" viewBox="0 0 24 24" aria-hidden="true">
-      <rect y="4" width="24" height="2" rx="1"></rect>
-      <rect y="11" width="24" height="2" rx="1"></rect>
-      <rect y="18" width="24" height="2" rx="1"></rect>
-    </svg>
-  </div>
-</header>
+
+<!-- Header will be injected by header.js -->
+<div id="header-container"></div>
 
 <div id="loading-overlay">
   <div class="spinner"></div>
@@ -37,20 +19,16 @@
 <div id="popup"></div>
 <button class="post-fab" onclick="goToTop()">Post</button>
 
-<nav id="bottom-bar" aria-label="Bottom navigation">
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-label="Home" tabindex="0" onclick="void(0)">
-    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-  </svg>
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-label="Search" tabindex="0" onclick="void(0)">
-    <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16a6.471 6.471 0 004.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zM9.5 14A4.5 4.5 0 119.5 5a4.5 4.5 0 010 9z"/>
-  </svg>
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-label="Profile" tabindex="0" onclick="void(0)">
-    <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/>
-  </svg>
-</nav>
+<!-- Footer will be injected by footer.js -->
+<div id="footer-container"></div>
 
 <script type="module">
 import { createDreamCard } from './dreamCard.js';
+
+// ---------- Header/Footer Injection ----------
+import './header.js';
+import './footer.js';
+// --------------------------------------------
 
 const API_URL = 'https://stardriftr-api.calembeaz.workers.dev';
 const timeline = document.getElementById('timeline');
