@@ -5,40 +5,56 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dream Timeline</title>
+  <style>
+    /* Optional: make spinner in uploading box slightly smaller */
+    #dream-uploading-box .spinner {
+      width: 20px;
+      height: 20px;
+      border: 3px solid #555;
+      border-top: 3px solid #fff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg);}
+      100% { transform: rotate(360deg);}
+    }
+  </style>
 </head>
 <body>
-  <!-- Header will be injected -->
+  <!-- Loading overlay for initial timeline fetch -->
   <div id="loading-overlay">
     <div class="spinner"></div>
   </div>
 
+  <!-- Timeline container -->
   <div class="timeline" id="timeline"></div>
 
+  <!-- Popup messages -->
   <div id="popup" style="display: none;"></div>
 
-  <!-- Sticky dream uploading box -->
-  <div id="dream-uploading-box" style="
-    display:none;
-    position:sticky;
-    bottom:0;
-    left:0;
-    width:100%;
-    background:#1a1a1a;
-    color:#fff;
-    padding:10px 16px;
-    display:flex;
-    align-items:center;
-    gap:10px;
-    border-top:1px solid #333;
-    z-index:1000;
-  ">
-    <div class="spinner" style="width:20px;height:20px;"></div>
-    <span>Dream uploading...</span>
-  </div>
-
+  <!-- Post FAB -->
   <button class="post-fab" onclick="goToTop()">Post</button>
 
-  <!-- Footer will be injected -->
+  <!-- Sticky Dream Uploading Box -->
+  <div id="dream-uploading-box" style="
+      display:none;
+      position:fixed;
+      bottom:60px; /* sits above footer */
+      left:0;
+      width:100%;
+      background:#1a1a1a;
+      color:#fff;
+      padding:10px 16px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      border-top:1px solid #333;
+      z-index:10000;
+  ">
+    <div class="spinner"></div>
+    <span>Dream uploading...</span>
+  </div>
 
 <script type="module">
 import { createDreamCard } from './dreamCard.js';
@@ -47,6 +63,7 @@ import { createFooter } from './footer.js';
 
 const API_URL = 'https://stardriftr-api.calembeaz.workers.dev/dreams';
 const timeline = document.getElementById('timeline');
+const uploadingBox = document.getElementById('dream-uploading-box');
 
 // Inject header and footer
 document.body.prepend(createHeader());
@@ -54,6 +71,7 @@ document.body.appendChild(createFooter());
 
 function goHome() { window.location.href = "index.html"; }
 function goToTop() { window.location.href = 'index.html'; }
+
 function showPopup(msg) {
   const popup = document.getElementById("popup");
   popup.textContent = msg;
@@ -96,10 +114,9 @@ async function postPendingDream() {
   const pendingDream = localStorage.getItem('pendingDream');
   const generateImage = localStorage.getItem('generateImage') === 'true';
   const uid = localStorage.getItem('uid');
-  const uploadingBox = document.getElementById('dream-uploading-box');
 
   if (selectedDream && pendingDream && uid) {
-    // Show the sticky uploading box
+    // Show sticky uploading box only when there is a pending dream
     uploadingBox.style.display = 'flex';
 
     console.log("🔄 Posting dream:", {uid, pendingDream, selectedDream, generateImage});
@@ -124,11 +141,12 @@ async function postPendingDream() {
       localStorage.removeItem('selectedDreamText');
       localStorage.removeItem('generateImage');
       localStorage.removeItem('pendingDream');
+
     } catch (err) {
       console.error("❌ Error posting dream:", err);
       showPopup("Failed to post dream: " + err.message);
     } finally {
-      // Hide the uploading box once done
+      // Hide sticky uploading box after posting is done
       uploadingBox.style.display = 'none';
     }
   }
@@ -137,8 +155,8 @@ async function postPendingDream() {
 // ---------- Handle both first load and bfcache navigation ----------
 window.addEventListener('pageshow', async (event) => {
   if (event.persisted || !document.wasPosted) {
-    await loadTimeline();       // first fetch timeline
-    await postPendingDream();   // then start dream upload if pending
+    await loadTimeline();
+    await postPendingDream();
     document.wasPosted = true;
   }
 });
