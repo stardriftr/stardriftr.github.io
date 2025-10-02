@@ -23,7 +23,8 @@
 <script type="module">
 import { createDreamCard } from './dreamCard.js';
 import { createHeader } from './header.js';
-import { createFooter, showDreamUploading, hideDreamUploading } from './footer.js';
+import { createFooter } from './footer.js';
+import { showNotification, hideNotification } from './notification.js'; // new notification system
 
 const API_URL = 'https://stardriftr-api.calembeaz.workers.dev/dreams';
 const timeline = document.getElementById('timeline');
@@ -72,44 +73,44 @@ async function loadTimeline() {
 }
 
 async function postPendingDream() {
-  const selectedDream = localStorage.getItem('selectedDreamText');
-  const pendingDream = localStorage.getItem('pendingDream');
+  const selectedDream = localStorage.getItem('selectedDreamText')?.trim();
+  const pendingDream = localStorage.getItem('pendingDream')?.trim();
   const generateImage = localStorage.getItem('generateImage') === 'true';
-  const uid = localStorage.getItem('uid');
+  const uid = localStorage.getItem('uid')?.trim();
 
-  // Only show uploading bar if there’s a real pending dream
-  if (selectedDream?.trim() && pendingDream?.trim() && uid?.trim()) {
-    showDreamUploading();
+  // Only show notification if there’s a real pending dream
+  if (!selectedDream || !pendingDream || !uid) return;
 
-    console.log("🔄 Posting dream:", {uid, pendingDream, selectedDream, generateImage});
+  showNotification("Dream uploading...", { bottomOffset: "70px" });
 
-    try {
-      const dreamRes = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          uid,
-          pendingDream,
-          selectedDreamText: selectedDream,
-          generateImage
-        }),
-      });
+  console.log("🔄 Posting dream:", {uid, pendingDream, selectedDream, generateImage});
 
-      if (!dreamRes.ok) throw new Error(`Failed to post dream: ${dreamRes.status}`);
-      const dreamData = await dreamRes.json();
-      console.log("✅ Dream posted:", dreamData);
+  try {
+    const dreamRes = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        uid,
+        pendingDream,
+        selectedDreamText: selectedDream,
+        generateImage
+      }),
+    });
 
-      // Clear localStorage so it doesn’t re-post
-      localStorage.removeItem('selectedDreamText');
-      localStorage.removeItem('generateImage');
-      localStorage.removeItem('pendingDream');
+    if (!dreamRes.ok) throw new Error(`Failed to post dream: ${dreamRes.status}`);
+    const dreamData = await dreamRes.json();
+    console.log("✅ Dream posted:", dreamData);
 
-    } catch (err) {
-      console.error("❌ Error posting dream:", err);
-      showPopup("Failed to post dream: " + err.message);
-    } finally {
-      hideDreamUploading();
-    }
+    // Clear localStorage so it doesn’t re-post
+    localStorage.removeItem('selectedDreamText');
+    localStorage.removeItem('generateImage');
+    localStorage.removeItem('pendingDream');
+
+  } catch (err) {
+    console.error("❌ Error posting dream:", err);
+    showPopup("Failed to post dream: " + err.message);
+  } finally {
+    hideNotification();
   }
 }
 
