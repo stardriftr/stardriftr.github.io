@@ -73,16 +73,15 @@ async function loadTimeline() {
 }
 
 async function postPendingDream() {
-  const selectedDream = localStorage.getItem('selectedDreamText')?.trim() || '';
-  const pendingDream = localStorage.getItem('pendingDream')?.trim() || '';
+  const selectedDream = localStorage.getItem('selectedDreamText')?.trim();
+  const pendingDream = localStorage.getItem('pendingDream')?.trim();
   const generateImage = localStorage.getItem('generateImage') === 'true';
-  const uid = localStorage.getItem('uid')?.trim() || '';
+  const uid = localStorage.getItem('uid')?.trim();
 
   console.log("📝 Checking for pending dream:", {selectedDream, pendingDream, uid, generateImage});
 
-  // Only show notification if there’s a real pending dream
-  if (pendingDream.length > 0 && selectedDream.length > 0 && uid.length > 0) {
-    console.log("🚀 Pending dream detected, showing notification");
+  if (selectedDream && pendingDream && uid) {
+    console.log("ℹ️ Pending dream detected, showing notification");
     showNotification("Dream uploading...", { bottom: 70 });
 
     try {
@@ -110,10 +109,12 @@ async function postPendingDream() {
       console.error("❌ Error posting dream:", err);
       showPopup("Failed to post dream: " + err.message);
     } finally {
+      console.log("ℹ️ Hiding notification after post attempt");
       hideNotification();
     }
   } else {
     console.log("ℹ️ No pending dream detected, notification hidden");
+    hideNotification();
   }
 }
 
