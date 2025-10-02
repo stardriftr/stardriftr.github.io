@@ -34,7 +34,6 @@ document.body.appendChild(createFooter());
 
 function goHome() { window.location.href = "index.html"; }
 function goToTop() { window.location.href = 'index.html'; }
-
 function showPopup(msg) {
   const popup = document.getElementById("popup");
   popup.textContent = msg;
@@ -78,10 +77,9 @@ async function postPendingDream() {
   const generateImage = localStorage.getItem('generateImage') === 'true';
   const uid = localStorage.getItem('uid');
 
-  // Only post if there’s a real pending dream
+  // Only show uploading bar if there’s a real pending dream
   if (selectedDream?.trim() && pendingDream?.trim() && uid?.trim()) {
     showDreamUploading();
-
     console.log("🔄 Posting dream:", {uid, pendingDream, selectedDream, generateImage});
 
     try {
@@ -100,7 +98,7 @@ async function postPendingDream() {
       const dreamData = await dreamRes.json();
       console.log("✅ Dream posted:", dreamData);
 
-      // Clear localStorage to avoid repost
+      // Clear localStorage so it doesn’t re-post
       localStorage.removeItem('selectedDreamText');
       localStorage.removeItem('generateImage');
       localStorage.removeItem('pendingDream');
