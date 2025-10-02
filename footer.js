@@ -3,6 +3,8 @@ export function createFooter() {
   const nav = document.createElement('nav');
   nav.id = 'bottom-bar';
   nav.setAttribute('aria-label', 'Bottom navigation');
+
+  // Bottom bar content
   nav.innerHTML = `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
          role="img" aria-label="Home" tabindex="0"
@@ -31,6 +33,53 @@ export function createFooter() {
                2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3
                c0-3.3-6.7-5-10-5z"/>
     </svg>
+
+    <!-- Dream uploading box -->
+    <div id="dream-uploading-box" style="
+      display: none;
+      position: sticky;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background-color: #1a1a1a;
+      color: #fff;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: bold;
+      z-index: 1000;
+      border-top: 1px solid #444;
+    ">
+      <div class="spinner" style="
+        width: 20px;
+        height: 20px;
+        border: 3px solid #444;
+        border-top: 3px solid #fff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      "></div>
+      <span>Dream uploading...</span>
+    </div>
+
+    <style>
+      @keyframes spin {
+        0% { transform: rotate(0deg);}
+        100% { transform: rotate(360deg);}
+      }
+    </style>
   `;
+
   return nav;
+}
+
+// Utility functions to show/hide the dream uploading bar
+export function showDreamUploading() {
+  const box = document.getElementById('dream-uploading-box');
+  if (box) box.style.display = 'flex';
+}
+
+export function hideDreamUploading() {
+  const box = document.getElementById('dream-uploading-box');
+  if (box) box.style.display = 'none';
 }
