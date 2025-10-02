@@ -25,11 +25,6 @@
 <script type="module">
 import { createDreamCard } from './dreamCard.js';
 
-// ---------- Header/Footer Injection ----------
-import './header.js';
-import './footer.js';
-// --------------------------------------------
-
 const API_URL = 'https://stardriftr-api.calembeaz.workers.dev';
 const timeline = document.getElementById('timeline');
 
@@ -176,5 +171,7 @@ window.addEventListener('load', loadUserProfile);
 </script>
 
 <script type="module" src="dreamCard.js"></script>
+<script src="header.js"></script>
+<script src="footer.js"></script>
 </body>
 </html>
