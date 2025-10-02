@@ -496,7 +496,7 @@ input:checked + .slider:before {
   cursor: default;
   transition: transform 0.1s ease;
   background-color: inherit; /* allow JS to set background */
-  border-width: 2px;        /* don't override border style */
+  border-width: 1px;        /* don't override border style */
   border-style: solid;
   border-color: inherit;     /* allow JS to set border color */
 }
@@ -504,5 +504,6 @@ input:checked + .slider:before {
 .badge:hover {
   transform: scale(1.05);
 }
+
 
 
