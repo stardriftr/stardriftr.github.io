@@ -73,15 +73,17 @@ async function loadTimeline() {
 }
 
 async function postPendingDream() {
-  const selectedDream = (localStorage.getItem('selectedDreamText') || '').trim();
-  const pendingDream = (localStorage.getItem('pendingDream') || '').trim();
+  const selectedDream = localStorage.getItem('selectedDreamText')?.trim() || '';
+  const pendingDream = localStorage.getItem('pendingDream')?.trim() || '';
   const generateImage = localStorage.getItem('generateImage') === 'true';
-  const uid = (localStorage.getItem('uid') || '').trim();
+  const uid = localStorage.getItem('uid')?.trim() || '';
+
+  console.log("📝 Checking for pending dream:", {selectedDream, pendingDream, uid, generateImage});
 
   // Only show notification if there’s a real pending dream
-  if (selectedDream.length > 0 && pendingDream.length > 0 && uid.length > 0) {
+  if (pendingDream.length > 0 && selectedDream.length > 0 && uid.length > 0) {
+    console.log("🚀 Pending dream detected, showing notification");
     showNotification("Dream uploading...", { bottom: 70 });
-    console.log("🔄 Posting dream:", {uid, pendingDream, selectedDream, generateImage});
 
     try {
       const dreamRes = await fetch(API_URL, {
@@ -110,6 +112,8 @@ async function postPendingDream() {
     } finally {
       hideNotification();
     }
+  } else {
+    console.log("ℹ️ No pending dream detected, notification hidden");
   }
 }
 
