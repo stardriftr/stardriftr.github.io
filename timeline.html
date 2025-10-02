@@ -5,40 +5,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dream Timeline</title>
-  <style>
-    /* Dream uploading bar styling */
-    #dream-uploading-box {
-      display: none;
-      position: sticky;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      background-color: #1a1a1a;
-      color: #fff;
-      padding: 10px 16px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: bold;
-      z-index: 1000;
-      border-top: 1px solid #444;
-    }
-
-    /* Spinner inside dream uploading box */
-    #dream-uploading-box .spinner {
-      width: 20px;
-      height: 20px;
-      border: 3px solid #444;
-      border-top: 3px solid #fff;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg);}
-      100% { transform: rotate(360deg);}
-    }
-  </style>
 </head>
 <body>
   <!-- Header will be injected -->
@@ -52,18 +18,12 @@
 
   <button class="post-fab" onclick="goToTop()">Post</button>
 
-  <!-- Dream uploading bar -->
-  <div id="dream-uploading-box">
-    <div class="spinner"></div>
-    <span>Dream uploading...</span>
-  </div>
-
   <!-- Footer will be injected -->
 
 <script type="module">
 import { createDreamCard } from './dreamCard.js';
 import { createHeader } from './header.js';
-import { createFooter } from './footer.js';
+import { createFooter, showDreamUploading, hideDreamUploading } from './footer.js';
 
 const API_URL = 'https://stardriftr-api.calembeaz.workers.dev/dreams';
 const timeline = document.getElementById('timeline');
@@ -74,6 +34,7 @@ document.body.appendChild(createFooter());
 
 function goHome() { window.location.href = "index.html"; }
 function goToTop() { window.location.href = 'index.html'; }
+
 function showPopup(msg) {
   const popup = document.getElementById("popup");
   popup.textContent = msg;
@@ -117,10 +78,9 @@ async function postPendingDream() {
   const generateImage = localStorage.getItem('generateImage') === 'true';
   const uid = localStorage.getItem('uid');
 
-  // Only show uploading bar if there’s a real pending dream
+  // Only post if there’s a real pending dream
   if (selectedDream?.trim() && pendingDream?.trim() && uid?.trim()) {
-    const uploadingBox = document.getElementById('dream-uploading-box');
-    uploadingBox.style.display = 'flex';
+    showDreamUploading();
 
     console.log("🔄 Posting dream:", {uid, pendingDream, selectedDream, generateImage});
 
@@ -140,7 +100,7 @@ async function postPendingDream() {
       const dreamData = await dreamRes.json();
       console.log("✅ Dream posted:", dreamData);
 
-      // Clear localStorage so it doesn’t re-post
+      // Clear localStorage to avoid repost
       localStorage.removeItem('selectedDreamText');
       localStorage.removeItem('generateImage');
       localStorage.removeItem('pendingDream');
@@ -149,9 +109,7 @@ async function postPendingDream() {
       console.error("❌ Error posting dream:", err);
       showPopup("Failed to post dream: " + err.message);
     } finally {
-      // Hide uploading box after post is complete
-      const uploadingBox = document.getElementById('dream-uploading-box');
-      uploadingBox.style.display = 'none';
+      hideDreamUploading();
     }
   }
 }
