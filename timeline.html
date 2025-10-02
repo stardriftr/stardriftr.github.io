@@ -73,15 +73,15 @@ async function loadTimeline() {
 }
 
 async function postPendingDream() {
-  const selectedDream = localStorage.getItem('selectedDreamText')?.trim();
-  const pendingDream = localStorage.getItem('pendingDream')?.trim();
+  const selectedDream = (localStorage.getItem('selectedDreamText') || '').trim();
+  const pendingDream = (localStorage.getItem('pendingDream') || '').trim();
   const generateImage = localStorage.getItem('generateImage') === 'true';
-  const uid = localStorage.getItem('uid')?.trim();
+  const uid = (localStorage.getItem('uid') || '').trim();
 
   // Only show notification if there’s a real pending dream
-  if (selectedDream && pendingDream && uid) {
-    console.log("🔄 Posting dream:", {uid, pendingDream, selectedDream, generateImage});
+  if (selectedDream.length > 0 && pendingDream.length > 0 && uid.length > 0) {
     showNotification("Dream uploading...", { bottom: 70 });
+    console.log("🔄 Posting dream:", {uid, pendingDream, selectedDream, generateImage});
 
     try {
       const dreamRes = await fetch(API_URL, {
