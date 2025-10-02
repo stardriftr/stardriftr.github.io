@@ -80,6 +80,7 @@ async function postPendingDream() {
   // Only show uploading bar if there’s a real pending dream
   if (selectedDream?.trim() && pendingDream?.trim() && uid?.trim()) {
     showDreamUploading();
+
     console.log("🔄 Posting dream:", {uid, pendingDream, selectedDream, generateImage});
 
     try {
