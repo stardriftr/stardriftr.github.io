@@ -79,10 +79,9 @@ async function postPendingDream() {
   const uid = localStorage.getItem('uid')?.trim();
 
   // Only show notification if there’s a real pending dream
-  if (!selectedDream || !pendingDream || !uid) return;
-
-  showNotification("Dream uploading...", { bottomOffset: "70px" });
-
+  if (selectedDream && pendingDream && uid) {
+    showNotification("Dream uploading...", { bottom: 70 });
+  }
   console.log("🔄 Posting dream:", {uid, pendingDream, selectedDream, generateImage});
 
   try {
@@ -125,3 +124,4 @@ window.addEventListener('pageshow', async (event) => {
 </script>
 </body>
 </html>
+
