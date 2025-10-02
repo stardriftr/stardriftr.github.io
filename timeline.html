@@ -16,6 +16,26 @@
 
   <div id="popup" style="display: none;"></div>
 
+  <!-- Sticky dream uploading box -->
+  <div id="dream-uploading-box" style="
+    display:none;
+    position:sticky;
+    bottom:0;
+    left:0;
+    width:100%;
+    background:#1a1a1a;
+    color:#fff;
+    padding:10px 16px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    border-top:1px solid #333;
+    z-index:1000;
+  ">
+    <div class="spinner" style="width:20px;height:20px;"></div>
+    <span>Dream uploading...</span>
+  </div>
+
   <button class="post-fab" onclick="goToTop()">Post</button>
 
   <!-- Footer will be injected -->
@@ -76,8 +96,12 @@ async function postPendingDream() {
   const pendingDream = localStorage.getItem('pendingDream');
   const generateImage = localStorage.getItem('generateImage') === 'true';
   const uid = localStorage.getItem('uid');
+  const uploadingBox = document.getElementById('dream-uploading-box');
 
   if (selectedDream && pendingDream && uid) {
+    // Show the sticky uploading box
+    uploadingBox.style.display = 'flex';
+
     console.log("🔄 Posting dream:", {uid, pendingDream, selectedDream, generateImage});
 
     try {
@@ -103,6 +127,9 @@ async function postPendingDream() {
     } catch (err) {
       console.error("❌ Error posting dream:", err);
       showPopup("Failed to post dream: " + err.message);
+    } finally {
+      // Hide the uploading box once done
+      uploadingBox.style.display = 'none';
     }
   }
 }
@@ -110,8 +137,8 @@ async function postPendingDream() {
 // ---------- Handle both first load and bfcache navigation ----------
 window.addEventListener('pageshow', async (event) => {
   if (event.persisted || !document.wasPosted) {
-    await postPendingDream();
-    await loadTimeline();
+    await loadTimeline();       // first fetch timeline
+    await postPendingDream();   // then start dream upload if pending
     document.wasPosted = true;
   }
 });
