@@ -99,12 +99,12 @@ async function loadUserProfile() {
     // Function to render dream cards
     function renderDreams(dreamIds) {
       timeline.innerHTML = '';
-      timeline.style.display = 'block';
+      timeline.style.display = 'block'; // Match "Dream Timeline" block layout
       const dreamsToShow = dreamIds.map(did => allDreamsMap[did]).filter(Boolean);
-      const sortedDreams = dreamsToShow.sort((a,b) => Number(b.time) - Number(a.time));
+      const sortedDreams = dreamsToShow.sort((a, b) => Number(b.time) - Number(a.time));
       sortedDreams.forEach((d, i) => {
         const card = createDreamCard(d, i);
-        if (card) timeline.appendChild(card);
+        if (card) timeline.appendChild(card); // Rely on createDreamCard for padding
       });
     }
     // Function to render image grid
@@ -114,7 +114,7 @@ async function loadUserProfile() {
       timeline.style.gridTemplateColumns = 'repeat(3, 1fr)';
       timeline.style.gap = '8px';
       const dreamsToShow = dreamIds.map(did => allDreamsMap[did]).filter(Boolean);
-      const sortedDreams = dreamsToShow.sort((a,b) => Number(b.time) - Number(a.time));
+      const sortedDreams = dreamsToShow.sort((a, b) => Number(b.time) - Number(a.time));
       sortedDreams.forEach(d => {
         const imageUrl = d.image_url || d.image || d.img || d.url;
         if (imageUrl) {
@@ -130,8 +130,8 @@ async function loadUserProfile() {
       });
     }
     // Track mode & tab
-    let currentMode = 'grid'; // 'cards' or 'grid'
-    let currentTab = 'posts'; // 'posts' or 'likes'
+    let currentMode = 'grid'; // Default to grid
+    let currentTab = 'posts';
     function renderCurrentView() {
       const ids = currentTab === 'posts' ? profile.dreams : profile.liked_dreams;
       if (!ids || ids.length === 0) {
@@ -160,13 +160,12 @@ async function loadUserProfile() {
     gridToggle.addEventListener('click', () => {
       currentMode = currentMode === 'cards' ? 'grid' : 'cards';
       renderCurrentView();
-      // Update SVG icon and fill color
       if (currentMode === 'grid') {
-        gridToggle.innerHTML = `<path d="M3 4h18v2H3V4zm0 7h18v2H3v-2zm0 7h18v2H3v-2z"/>`; // List icon for posts/cards view
-        gridToggle.setAttribute('fill', '#5492a5'); // Highlight grid mode
+        gridToggle.innerHTML = `<path d="M3 4h18v2H3V4zm0 7h18v2H3v-2zm0 7h18v2H3v-2z"/>`;
+        gridToggle.setAttribute('fill', '#5492a5');
       } else {
-        gridToggle.innerHTML = `<path d="M3 3h6v6H3V3zm0 8h6v6H3v-6zm0 8h6v6H3v-6zm8-16h6v6h-6V3zm0 8h6v6h-6v-6zm0 8h6v6h-6v-6zm8-16h6v6h-6V3zm0 8h6v6h-6v-6zm0 8h6v6h-6v-6z"/>`; // Grid icon for grid view
-        gridToggle.setAttribute('fill', '#aaa'); // Dim cards mode
+        gridToggle.innerHTML = `<path d="M3 3h6v6H3V3zm0 8h6v6H3v-6zm0 8h6v6H3v-6zm8-16h6v6h-6V3zm0 8h6v6h-6v-6zm0 8h6v6h-6v-6zm8-16h6v6h-6V3zm0 8h6v6h-6v-6zm0 8h6v6h-6v-6z"/>`;
+        gridToggle.setAttribute('fill', '#aaa');
       }
     });
   } catch (err) {
@@ -178,5 +177,6 @@ async function loadUserProfile() {
 }
 window.addEventListener('load', loadUserProfile);
 </script>
+
 
 
