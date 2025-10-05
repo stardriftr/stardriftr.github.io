@@ -1,61 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<link rel="stylesheet" href="https://stardriftr.github.io/style.css">
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>User Profile</title>
-</head>
-<body>
-  <!-- Header will be injected -->
-
-  <div id="loading-overlay">
-    <div class="spinner"></div>
-  </div>
-
-  <div class="timeline" id="timeline"></div>
-  <div id="popup" style="display: none;"></div>
-  <button class="post-fab" onclick="goToTop()">Post</button>
-
-  <!-- Footer will be injected -->
-
 <script type="module">
 import { createDreamCard } from './dreamCard.js';
 import { createHeader } from './header.js';
 import { createFooter } from './footer.js';
-
 const API_URL = 'https://stardriftr-api.calembeaz.workers.dev';
 const timeline = document.getElementById('timeline');
-
 // Inject header and footer
 document.body.prepend(createHeader());
 document.body.appendChild(createFooter());
-
 function randomEmoji() {
   const emojis = ['😴', '🌌', '👁️', '🌀', '🌙', '🛌'];
   return emojis[Math.floor(Math.random() * emojis.length)];
 }
-
 function fallbackAnon(i) {
   return 'Anon-' + String(1000 + i);
 }
-
 function showPopup(msg) {
   const popup = document.getElementById("popup");
   popup.textContent = msg;
   popup.style.display = "block";
   setTimeout(() => popup.style.display = "none", 3000);
 }
-
 function goHome() { window.location.href = "index.html"; }
 function goToTop() { window.location.href = 'index.html'; }
-
 async function fetchDreamWithLikes(dreamId, i) {
   try {
     const res = await fetch(`${API_URL}/dreams/${dreamId}`);
     if (!res.ok) return null;
     const d = await res.json();
-
     const likeCountRes = await fetch(`${API_URL}/dreams/${dreamId}:like_count`);
     let likeCount = 0;
     if (likeCountRes.ok) {
@@ -64,35 +35,28 @@ async function fetchDreamWithLikes(dreamId, i) {
     }
     d.like_count = likeCount;
     return d;
-  } catch(e) { 
-    console.error(`Failed to fetch dream ${dreamId}:`, e); 
-    return null; 
+  } catch(e) {
+    console.error(`Failed to fetch dream ${dreamId}:`, e);
+    return null;
   }
 }
-
 async function loadUserProfile() {
   const loadingOverlay = document.getElementById('loading-overlay');
   const currentUid = localStorage.getItem('uid');
-
   try {
     const urlParams = new URLSearchParams(window.location.search);
     const username = urlParams.get('username');
     if (!username) throw new Error('No username provided');
-
     const profileRes = await fetch(`${API_URL}/profile/${username}`);
     if (!profileRes.ok) throw new Error(`Profile not found: ${profileRes.status}`);
     const profile = await profileRes.json();
-
     // Fetch user's posted dreams
     const dreams = await Promise.all(profile.dreams.map((dreamId, i) => fetchDreamWithLikes(dreamId, i)));
-
     // Fetch user's liked dreams
     const likedDreams = profile.liked_dreams ? await Promise.all(profile.liked_dreams.map((dreamId, i) => fetchDreamWithLikes(dreamId, i))) : [];
-
     // Map all dreams for easy lookup
     const allDreamsMap = {};
     [...dreams, ...likedDreams].filter(Boolean).forEach(d => { allDreamsMap[d.dream_id] = d; });
-
     // Add profile header
     const profileHeader = document.createElement('div');
     profileHeader.className = 'user-profile-header';
@@ -101,44 +65,37 @@ async function loadUserProfile() {
       <p class="username-handle">@${profile.username}</p>
       <div class="tabs" style="display:flex; align-items:center; gap:12px; margin-top:12px;">
         <span id="postsTab" style="cursor:pointer; font-weight:bold; border-bottom:2px solid #5492a5; padding-bottom:4px;">Posts</span>
-        <svg id="gridToggleIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="#aaa" style="cursor:pointer;">
-          <path d="M3 3h6v6H3V3zm0 8h6v6H3v-6zm0 8h6v6H3v-6zm8-16h6v6h-6V3zm0 8h6v6h-6v-6zm0 8h6v6h-6v-6zm8-16h6v6h-6V3zm0 8h6v6h-6v-6zm0 8h6v6h-6v-6z"/>
+        <svg id="gridToggleIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="#5492a5" style="cursor:pointer;">
+          <path d="M3 4h18v2H3V4zm0 7h18v2H3v-2zm0 7h18v2H3v-2z"/>
         </svg>
         <span id="likesTab" style="cursor:pointer; padding-bottom:4px;">Likes</span>
       </div>
     `;
     timeline.parentElement.insertBefore(profileHeader, timeline);
     profileHeader.style.paddingBottom = '60px';
-
     const postsTab = document.getElementById('postsTab');
     const likesTab = document.getElementById('likesTab');
     const gridToggle = document.getElementById('gridToggleIcon');
-
     // Function to render dream cards
     function renderDreams(dreamIds) {
       timeline.innerHTML = '';
       timeline.style.display = 'block';
       const dreamsToShow = dreamIds.map(did => allDreamsMap[did]).filter(Boolean);
       const sortedDreams = dreamsToShow.sort((a,b) => Number(b.time) - Number(a.time));
-
       sortedDreams.forEach((d, i) => {
         const card = createDreamCard(d, i);
         if (card) timeline.appendChild(card);
       });
     }
-
     // Function to render image grid
     function renderDreamGrid(dreamIds) {
       timeline.innerHTML = '';
       timeline.style.display = 'grid';
       timeline.style.gridTemplateColumns = 'repeat(3, 1fr)';
       timeline.style.gap = '8px';
-
       const dreamsToShow = dreamIds.map(did => allDreamsMap[did]).filter(Boolean);
       const sortedDreams = dreamsToShow.sort((a,b) => Number(b.time) - Number(a.time));
-
       sortedDreams.forEach(d => {
-        // Match image key used by your dream upload response
         const imageUrl = d.image_url || d.image || d.img || d.url;
         if (imageUrl) {
           const img = document.createElement('img');
@@ -152,11 +109,9 @@ async function loadUserProfile() {
         }
       });
     }
-
     // Track mode & tab
-    let currentMode = 'cards'; // 'cards' or 'grid'
+    let currentMode = 'grid'; // 'cards' or 'grid'
     let currentTab = 'posts'; // 'posts' or 'likes'
-
     function renderCurrentView() {
       const ids = currentTab === 'posts' ? profile.dreams : profile.liked_dreams;
       if (!ids || ids.length === 0) {
@@ -166,10 +121,8 @@ async function loadUserProfile() {
       if (currentMode === 'grid') renderDreamGrid(ids);
       else renderDreams(ids);
     }
-
     // Initial render
-    renderDreams(profile.dreams);
-
+    renderCurrentView();
     // Tab listeners
     postsTab.addEventListener('click', () => {
       postsTab.style.borderBottom = '2px solid #5492a5';
@@ -177,22 +130,25 @@ async function loadUserProfile() {
       currentTab = 'posts';
       renderCurrentView();
     });
-
     likesTab.addEventListener('click', async () => {
       likesTab.style.borderBottom = '2px solid #5492a5';
       postsTab.style.borderBottom = 'none';
       currentTab = 'likes';
       renderCurrentView();
     });
-
     // Grid toggle listener
     gridToggle.addEventListener('click', () => {
       currentMode = currentMode === 'cards' ? 'grid' : 'cards';
       renderCurrentView();
-      // Optional highlight toggle
-      gridToggle.setAttribute('fill', currentMode === 'grid' ? '#5492a5' : '#aaa');
+      // Update SVG icon and fill color
+      if (currentMode === 'grid') {
+        gridToggle.innerHTML = `<path d="M3 4h18v2H3V4zm0 7h18v2H3v-2zm0 7h18v2H3v-2z"/>`; // List icon for posts/cards view
+        gridToggle.setAttribute('fill', '#5492a5'); // Highlight grid mode
+      } else {
+        gridToggle.innerHTML = `<path d="M3 3h6v6H3V3zm0 8h6v6H3v-6zm0 8h6v6H3v-6zm8-16h6v6h-6V3zm0 8h6v6h-6v-6zm0 8h6v6h-6v-6zm8-16h6v6h-6V3zm0 8h6v6h-6v-6zm0 8h6v6h-6v-6z"/>`; // Grid icon for grid view
+        gridToggle.setAttribute('fill', '#aaa'); // Dim cards mode
+      }
     });
-
   } catch (err) {
     console.error('Error loading user profile:', err);
     showPopup(`Error loading profile: ${err.message}`);
@@ -200,9 +156,5 @@ async function loadUserProfile() {
     loadingOverlay.style.display = 'none';
   }
 }
-
 window.addEventListener('load', loadUserProfile);
 </script>
-</body>
-</html>
-
