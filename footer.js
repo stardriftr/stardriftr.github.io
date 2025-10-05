@@ -1,4 +1,3 @@
-// footer.js
 export function createFooter() {
   const nav = document.createElement('nav');
   nav.id = 'bottom-bar';
