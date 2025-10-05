@@ -93,23 +93,17 @@ async function loadUserProfile() {
     const allDreamsMap = {};
     [...dreams, ...likedDreams].filter(Boolean).forEach(d => { allDreamsMap[d.dream_id] = d; });
 
-    // --- GRID TOGGLE ICON ---
-    const gridToggle = document.createElement('div');
-    gridToggle.innerHTML = `
-      <svg id="gridToggleIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="26" height="26" fill="#aaa" style="cursor:pointer; margin:16px;">
-        <path d="M3 3h6v6H3V3zm0 8h6v6H3v-6zm0 8h6v6H3v-6zm8-16h6v6h-6V3zm0 8h6v6h-6v-6zm0 8h6v6h-6v-6zm8-16h6v6h-6V3zm0 8h6v6h-6v-6zm0 8h6v6h-6v-6z"/>
-      </svg>
-    `;
-    document.body.prepend(gridToggle);
-
     // Add profile header
     const profileHeader = document.createElement('div');
     profileHeader.className = 'user-profile-header';
     profileHeader.innerHTML = `
       <h2>${profile.display_name}</h2>
       <p class="username-handle">@${profile.username}</p>
-      <div class="tabs" style="display:flex; gap:20px; margin-top:12px;">
+      <div class="tabs" style="display:flex; align-items:center; gap:12px; margin-top:12px;">
         <span id="postsTab" style="cursor:pointer; font-weight:bold; border-bottom:2px solid #5492a5; padding-bottom:4px;">Posts</span>
+        <svg id="gridToggleIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="#aaa" style="cursor:pointer;">
+          <path d="M3 3h6v6H3V3zm0 8h6v6H3v-6zm0 8h6v6H3v-6zm8-16h6v6h-6V3zm0 8h6v6h-6v-6zm0 8h6v6h-6v-6zm8-16h6v6h-6V3zm0 8h6v6h-6v-6zm0 8h6v6h-6v-6z"/>
+        </svg>
         <span id="likesTab" style="cursor:pointer; padding-bottom:4px;">Likes</span>
       </div>
     `;
@@ -118,8 +112,9 @@ async function loadUserProfile() {
 
     const postsTab = document.getElementById('postsTab');
     const likesTab = document.getElementById('likesTab');
+    const gridToggle = document.getElementById('gridToggleIcon');
 
-    // Function to render any list of dream IDs using dreamCard.js
+    // Function to render dream cards
     function renderDreams(dreamIds) {
       timeline.innerHTML = '';
       timeline.style.display = 'block';
@@ -132,7 +127,7 @@ async function loadUserProfile() {
       });
     }
 
-    // Function to render dreams as image grid
+    // Function to render image grid
     function renderDreamGrid(dreamIds) {
       timeline.innerHTML = '';
       timeline.style.display = 'grid';
@@ -143,19 +138,22 @@ async function loadUserProfile() {
       const sortedDreams = dreamsToShow.sort((a,b) => Number(b.time) - Number(a.time));
 
       sortedDreams.forEach(d => {
-        if (d.image_url) {
+        // Match image key used by your dream upload response
+        const imageUrl = d.image_url || d.image || d.img || d.url;
+        if (imageUrl) {
           const img = document.createElement('img');
-          img.src = d.image_url;
+          img.src = imageUrl;
           img.alt = d.title || 'Dream image';
           img.style.width = '100%';
           img.style.borderRadius = '8px';
           img.style.objectFit = 'cover';
+          img.style.aspectRatio = '1 / 1';
           timeline.appendChild(img);
         }
       });
     }
 
-    // Mode and tab tracking
+    // Track mode & tab
     let currentMode = 'cards'; // 'cards' or 'grid'
     let currentTab = 'posts'; // 'posts' or 'likes'
 
@@ -169,10 +167,10 @@ async function loadUserProfile() {
       else renderDreams(ids);
     }
 
-    // Initial render: Posts
+    // Initial render
     renderDreams(profile.dreams);
 
-    // Tab event listeners
+    // Tab listeners
     postsTab.addEventListener('click', () => {
       postsTab.style.borderBottom = '2px solid #5492a5';
       likesTab.style.borderBottom = 'none';
@@ -187,10 +185,12 @@ async function loadUserProfile() {
       renderCurrentView();
     });
 
-    // Grid toggle click
+    // Grid toggle listener
     gridToggle.addEventListener('click', () => {
       currentMode = currentMode === 'cards' ? 'grid' : 'cards';
       renderCurrentView();
+      // Optional highlight toggle
+      gridToggle.setAttribute('fill', currentMode === 'grid' ? '#5492a5' : '#aaa');
     });
 
   } catch (err) {
