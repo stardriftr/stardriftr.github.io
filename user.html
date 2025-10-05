@@ -93,6 +93,15 @@ async function loadUserProfile() {
     const allDreamsMap = {};
     [...dreams, ...likedDreams].filter(Boolean).forEach(d => { allDreamsMap[d.dream_id] = d; });
 
+    // --- GRID TOGGLE ICON ---
+    const gridToggle = document.createElement('div');
+    gridToggle.innerHTML = `
+      <svg id="gridToggleIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="26" height="26" fill="#aaa" style="cursor:pointer; margin:16px;">
+        <path d="M3 3h6v6H3V3zm0 8h6v6H3v-6zm0 8h6v6H3v-6zm8-16h6v6h-6V3zm0 8h6v6h-6v-6zm0 8h6v6h-6v-6zm8-16h6v6h-6V3zm0 8h6v6h-6v-6zm0 8h6v6h-6v-6z"/>
+      </svg>
+    `;
+    document.body.prepend(gridToggle);
+
     // Add profile header
     const profileHeader = document.createElement('div');
     profileHeader.className = 'user-profile-header';
@@ -113,6 +122,7 @@ async function loadUserProfile() {
     // Function to render any list of dream IDs using dreamCard.js
     function renderDreams(dreamIds) {
       timeline.innerHTML = '';
+      timeline.style.display = 'block';
       const dreamsToShow = dreamIds.map(did => allDreamsMap[did]).filter(Boolean);
       const sortedDreams = dreamsToShow.sort((a,b) => Number(b.time) - Number(a.time));
 
@@ -122,6 +132,43 @@ async function loadUserProfile() {
       });
     }
 
+    // Function to render dreams as image grid
+    function renderDreamGrid(dreamIds) {
+      timeline.innerHTML = '';
+      timeline.style.display = 'grid';
+      timeline.style.gridTemplateColumns = 'repeat(3, 1fr)';
+      timeline.style.gap = '8px';
+
+      const dreamsToShow = dreamIds.map(did => allDreamsMap[did]).filter(Boolean);
+      const sortedDreams = dreamsToShow.sort((a,b) => Number(b.time) - Number(a.time));
+
+      sortedDreams.forEach(d => {
+        if (d.image_url) {
+          const img = document.createElement('img');
+          img.src = d.image_url;
+          img.alt = d.title || 'Dream image';
+          img.style.width = '100%';
+          img.style.borderRadius = '8px';
+          img.style.objectFit = 'cover';
+          timeline.appendChild(img);
+        }
+      });
+    }
+
+    // Mode and tab tracking
+    let currentMode = 'cards'; // 'cards' or 'grid'
+    let currentTab = 'posts'; // 'posts' or 'likes'
+
+    function renderCurrentView() {
+      const ids = currentTab === 'posts' ? profile.dreams : profile.liked_dreams;
+      if (!ids || ids.length === 0) {
+        timeline.innerHTML = '<p style="color:#aaa;">No dreams yet.</p>';
+        return;
+      }
+      if (currentMode === 'grid') renderDreamGrid(ids);
+      else renderDreams(ids);
+    }
+
     // Initial render: Posts
     renderDreams(profile.dreams);
 
@@ -129,38 +176,22 @@ async function loadUserProfile() {
     postsTab.addEventListener('click', () => {
       postsTab.style.borderBottom = '2px solid #5492a5';
       likesTab.style.borderBottom = 'none';
-      renderDreams(profile.dreams);
+      currentTab = 'posts';
+      renderCurrentView();
     });
 
     likesTab.addEventListener('click', async () => {
       likesTab.style.borderBottom = '2px solid #5492a5';
       postsTab.style.borderBottom = 'none';
-      timeline.innerHTML = '';
-
-      if (!profile.liked_dreams || profile.liked_dreams.length === 0) {
-        timeline.innerHTML = '<p style="color:#aaa;">No liked dreams yet.</p>';
-        return;
-      }
-
-      // Fetch liked dreams and add them to allDreamsMap
-      for (const dreamId of profile.liked_dreams) {
-        if (!allDreamsMap[dreamId]) {
-          const res = await fetch(`${API_URL}/dreams/${dreamId}`);
-          if (res.ok) {
-            const dream = await res.json();
-
-            const likeCountRes = await fetch(`${API_URL}/dreams/${dreamId}:like_count`);
-            dream.like_count = likeCountRes.ok ? Number(await likeCountRes.text()) || 0 : 0;
-
-            allDreamsMap[dreamId] = dream;
-          }
-        }
-      }
-
-      // Now render using IDs, as renderDreams expects
-      renderDreams(profile.liked_dreams);
+      currentTab = 'likes';
+      renderCurrentView();
     });
 
+    // Grid toggle click
+    gridToggle.addEventListener('click', () => {
+      currentMode = currentMode === 'cards' ? 'grid' : 'cards';
+      renderCurrentView();
+    });
 
   } catch (err) {
     console.error('Error loading user profile:', err);
