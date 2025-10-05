@@ -99,13 +99,15 @@ async function loadUserProfile() {
     // Function to render dream cards
     function renderDreams(dreamIds) {
       timeline.innerHTML = '';
-      timeline.style.display = 'block'; // Match "Dream Timeline" block layout
+      timeline.style.display = 'block'; // Cards view
+      timeline.style.gridTemplateColumns = ''; // Reset grid columns for cards mode
+      timeline.style.gap = ''; // Reset gap for cards mode
       timeline.style.padding = '0'; // Ensure no container padding interferes
       const dreamsToShow = dreamIds.map(did => allDreamsMap[did]).filter(Boolean);
       const sortedDreams = dreamsToShow.sort((a, b) => Number(b.time) - Number(a.time));
       sortedDreams.forEach((d, i) => {
         const card = createDreamCard(d, i);
-        if (card) timeline.appendChild(card); // Rely on createDreamCard and style.css for padding
+        if (card) timeline.appendChild(card); // Rely on style.css for padding
       });
     }
     // Function to render image grid
@@ -178,6 +180,7 @@ async function loadUserProfile() {
 }
 window.addEventListener('load', loadUserProfile);
 </script>
+
 
 
 
