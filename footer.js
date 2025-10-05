@@ -35,13 +35,13 @@ export function createFooter() {
     const action = icon.getAttribute('data-action');
     switch (action) {
       case 'goHome':
-        icon.onclick = () => window.location.href = 'index.html';
+        icon.onclick = () => window.location.href = 'timeline.html';
         break;
       case 'goSearch':
         icon.onclick = () => alert('Search not implemented yet');
         break;
       case 'goPost':
-        icon.onclick = () => window.location.href = 'post.html';
+        icon.onclick = () => window.location.href = 'index.html';
         break;
       case 'goNotifications':
         icon.onclick = () => alert('Notifications not implemented yet');
@@ -54,3 +54,4 @@ export function createFooter() {
 
   return nav;
 }
+
