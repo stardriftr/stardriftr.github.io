@@ -84,10 +84,10 @@ async function loadUserProfile() {
       <h2>${profile.display_name}</h2>
       <p class="username-handle">@${profile.username}</p>
       <div class="tabs" style="display:flex; align-items:center; gap:12px; margin-top:12px;">
-        <span id="postsTab" style="cursor:pointer; font-weight:bold; border-bottom:2px solid #5492a5; padding-bottom:4px;">Posts</span>
         <svg id="gridToggleIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="#5492a5" style="cursor:pointer;">
           <path d="M3 4h18v2H3V4zm0 7h18v2H3v-2zm0 7h18v2H3v-2z"/>
         </svg>
+        <span id="postsTab" style="cursor:pointer; font-weight:bold; border-bottom:2px solid #5492a5; padding-bottom:4px;">Posts</span>
         <span id="likesTab" style="cursor:pointer; padding-bottom:4px;">Likes</span>
       </div>
     `;
@@ -178,4 +178,5 @@ async function loadUserProfile() {
 }
 window.addEventListener('load', loadUserProfile);
 </script>
+
 
