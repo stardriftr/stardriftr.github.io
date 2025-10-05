@@ -99,9 +99,10 @@ async function loadUserProfile() {
     // Function to render dream cards
     function renderDreams(dreamIds) {
       timeline.innerHTML = '';
-      timeline.style.display = 'block'; // Cards view
-      timeline.style.gridTemplateColumns = ''; // Reset grid columns for cards mode
-      timeline.style.gap = ''; // Reset gap for cards mode
+      timeline.style.display = 'flex'; // Use flex to match .timeline default
+      timeline.style.flexDirection = 'column'; // Explicitly set for clarity
+      timeline.style.gridTemplateColumns = ''; // Reset grid columns
+      timeline.style.gap = ''; // Reset gap to rely on .timeline's 1.25rem
       timeline.style.padding = '0'; // Ensure no container padding interferes
       const dreamsToShow = dreamIds.map(did => allDreamsMap[did]).filter(Boolean);
       const sortedDreams = dreamsToShow.sort((a, b) => Number(b.time) - Number(a.time));
@@ -180,6 +181,7 @@ async function loadUserProfile() {
 }
 window.addEventListener('load', loadUserProfile);
 </script>
+
 
 
 
