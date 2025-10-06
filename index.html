@@ -9,7 +9,7 @@
 <body>
   <img src="https://raw.githubusercontent.com/stardriftr/stardriftr.github.io/main/images/star_driftr_logo.png" alt="STAR DRIFTR Logo" class="logo" onclick="goHome()" />
   <header>
-    <p>An anonymous timeline of dreams</p>
+    <p>An AI powered, anonymous timeline of dreams</p>
   </header>
 
   <textarea id="dreamInput" placeholder="Describe what happened in your dream..."></textarea>
@@ -46,7 +46,7 @@
 
       // Save dream text + toggle state
       localStorage.setItem('pendingDream', text);
-      localStorage.setItem('selectedDreamText', text); // <-- add this line
+      localStorage.setItem('selectedDreamText', text); // Save full dream text
       localStorage.setItem('generateImage', generateImage.checked);
 
       // Show popup briefly
@@ -54,15 +54,10 @@
 
       setTimeout(() => {
         popup.style.display = 'none';
-        // Redirect based on slider
-        if (generateImage.checked) {
-          window.location.href = 'select_text.html';
-        } else {
-          window.location.href = 'login.html';
-        }
+        // Always redirect to login.html
+        window.location.href = 'login.html';
       }, 1000);
     });
-
 
     function goHome() {
       window.location.href = "index.html";
