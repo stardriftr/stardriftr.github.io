@@ -505,5 +505,32 @@ input:checked + .slider:before {
   transform: scale(1.05);
 }
 
+.hamburger-menu {
+  position: absolute;
+  top: 60px; /* Adjust based on header height */
+  right: 15px;
+  background: #16181d; /* Match your dark theme */
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+}
+
+#auth-btn {
+  background: #3a82f6; /* Match your highlight color */
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  width: 100%;
+  text-align: center;
+}
+
+#auth-btn:hover {
+  background: #2a72e6; /* Slightly darker on hover */
+}
+
 
 
