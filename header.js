@@ -23,6 +23,11 @@ export function createHeader() {
       </svg>
     </div>
     <div id="hamburger-menu" class="hamburger-menu" style="display: none;">
+      <div id="user-greeting">Hello, stardriftr</div>
+      <a href="content-policy.html" class="menu-link">Content Policy</a>
+      <a href="privacy.html" class="menu-link">Privacy Policy</a>
+      <a href="terms_conditions.html" class="menu-link">Terms and Conditions</a>
+      <div class="menu-gap"></div>
       <button id="auth-btn">Sign In</button>
     </div>
   `;
@@ -59,9 +64,13 @@ window.toggleMenu = function () {
 // Handle authentication state and button behavior
 document.addEventListener('DOMContentLoaded', () => {
   const authBtn = document.getElementById('auth-btn');
+  const userGreeting = document.getElementById('user-greeting');
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
+      // Fetch username from localStorage (set in login.html)
+      const username = localStorage.getItem('display_name') || localStorage.getItem('username') || 'stardriftr';
+      userGreeting.textContent = `Hello, ${username}`;
       authBtn.textContent = 'Sign Out';
       authBtn.onclick = async () => {
         try {
@@ -71,11 +80,11 @@ document.addEventListener('DOMContentLoaded', () => {
           localStorage.removeItem('uid');
           localStorage.removeItem('username');
           localStorage.removeItem('display_name');
-          // Optionally clear other items
           localStorage.removeItem('pendingDream');
           localStorage.removeItem('selectedDreamText');
           localStorage.removeItem('generateImage');
-          // Close menu after sign-out
+          // Update UI and close menu
+          userGreeting.textContent = 'Hello, stardriftr';
           document.getElementById('hamburger-menu').style.display = 'none';
         } catch (error) {
           console.error("❌ Sign-out error:", error);
@@ -83,6 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       };
     } else {
+      userGreeting.textContent = 'Hello, stardriftr';
       authBtn.textContent = 'Sign In';
       authBtn.onclick = () => {
         window.location.href = 'login.html';
