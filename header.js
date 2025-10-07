@@ -24,8 +24,8 @@ export function createHeader() {
     </div>
     <div id="hamburger-menu" class="hamburger-menu" style="display: none;">
       <div id="user-greeting">Hello, stardriftr</div>
-      <a href="content-policy.html" class="menu-link">Content Policy</a>
-      <a href="privacy.html" class="menu-link">Privacy Policy</a>
+      <a href="content_policy.html" class="menu-link">Content Policy</a>
+      <a href="privacy_policy.html" class="menu-link">Privacy Policy</a>
       <a href="terms_conditions.html" class="menu-link">Terms and Conditions</a>
       <div class="menu-gap"></div>
       <button id="auth-btn">Sign In</button>
@@ -101,3 +101,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
